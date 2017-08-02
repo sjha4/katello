@@ -11,6 +11,7 @@ module Actions
                                            owner:       repository.product.organization.label,
                                            name:        repository.name,
                                            type:        repository.content_type,
+                                           arches:      repository.arch == "noarch" ? "" : (repository.arch),
                                            label:       repository.custom_content_label,
                                            content_url: content_url(repository))
               content_id = content_create.output[:response][:id]
@@ -29,6 +30,7 @@ module Actions
                           content_id:  content_id,
                           name:        repository.name,
                           type:        repository.content_type,
+                          arches:      repository.arch,
                           label:       repository.custom_content_label,
                           content_url: content_url(repository),
                           gpg_key_url: repository.yum_gpg_key_url)

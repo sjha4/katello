@@ -32,6 +32,15 @@
                 ng-options="type.name as type.name for type in repositoryTypes">
         </select>
       </div>
+
+      <div bst-form-group label="{{ 'Arch' | translate }}">
+        <select id="architecture"
+                name="architecture"
+                ng-model="repository.arch"
+                ng-options="arch.name as arch.name for arch in architecture">
+          <option value=""></option>
+        </select>
+      </div>
     </div>
     <div ng-show="repository.content_type !== undefined">
       <h4 translate> Sync Information </h4>

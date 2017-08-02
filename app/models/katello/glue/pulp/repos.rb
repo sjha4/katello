@@ -213,7 +213,7 @@ module Katello
         end
       end
 
-      def add_repo(label, name, url, repo_type, unprotected = false, gpg = nil, checksum_type = nil, download_policy = nil)
+      def add_repo(label, name, url, repo_type, arch, unprotected = false, gpg = nil, checksum_type = nil, download_policy = nil)
         unprotected = unprotected.nil? ? false : unprotected
 
         if download_policy.blank? && repo_type == Repository::YUM_TYPE
@@ -228,7 +228,6 @@ module Katello
         Repository.new(:environment => self.organization.library,
                        :product => self,
                        :relative_path => rel_path,
-                       :arch => arch,
                        :name => name,
                        :label => label,
                        :url => url,

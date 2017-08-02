@@ -10,13 +10,14 @@
  * @requires Checksum
  * @requires DownloadPolicy
  * @requires OstreeUpstreamSyncPolicy
+ * @requires Architecture
  *
  * @description
  *   Provides the functionality for the repository details info page.
  */
 angular.module('Bastion.repositories').controller('RepositoryDetailsInfoController',
-    ['$scope', '$q', 'translate', 'GPGKey', 'CurrentOrganization', 'Checksum', 'DownloadPolicy', 'OstreeUpstreamSyncPolicy',
-    function ($scope, $q, translate, GPGKey, CurrentOrganization, Checksum, DownloadPolicy, OstreeUpstreamSyncPolicy) {
+    ['$scope', '$q', 'translate', 'GPGKey', 'CurrentOrganization', 'Checksum', 'DownloadPolicy', 'OstreeUpstreamSyncPolicy', 'Architecture',
+    function ($scope, $q, translate, GPGKey, CurrentOrganization, Checksum, DownloadPolicy, OstreeUpstreamSyncPolicy, Architecture) {
         $scope.successMessages = [];
         $scope.errorMessages = [];
         $scope.uploadSuccessMessages = [];
@@ -42,7 +43,22 @@ angular.module('Bastion.repositories').controller('RepositoryDetailsInfoControll
             return deferred.promise;
         };
 
+        $scope.architectures = function () {
+            var deferred = $q.defer();
+            Architecture.queryUnpaged(function (architectures) {
+                var results = architectures.results
+                results.map(function(i){i["id"] = i["name"]});
+                deferred.resolve(results);
+                // var resultName = _.map(results, "name");
+                // //results.unshift({id: null});
+                // console.log(resultName);
+
+            });
+            return deferred.promise;
+        };
+
         $scope.save = function (repository) {
+
             var deferred = $q.defer();
 
             repository.$update(function (response) {

@@ -19,8 +19,8 @@
  *   Controls the creation of an empty Repository object for use by sub-controllers.
  */
 angular.module('Bastion.repositories').controller('NewRepositoryController',
-    ['$scope', 'Repository', 'Product', 'GPGKey', 'FormUtils', 'translate', 'GlobalNotification', 'ApiErrorHandler', 'BastionConfig', 'Checksum', 'DownloadPolicy', 'OstreeUpstreamSyncPolicy',
-    function ($scope, Repository, Product, GPGKey, FormUtils, translate, GlobalNotification, ApiErrorHandler, BastionConfig, Checksum, DownloadPolicy, OstreeUpstreamSyncPolicy) {
+    ['$scope', 'Repository', 'Product', 'GPGKey', 'FormUtils', 'translate', 'GlobalNotification', 'ApiErrorHandler', 'BastionConfig', 'Checksum', 'DownloadPolicy', 'OstreeUpstreamSyncPolicy', 'Architecture',
+    function ($scope, Repository, Product, GPGKey, FormUtils, translate, GlobalNotification, ApiErrorHandler, BastionConfig, Checksum, DownloadPolicy, OstreeUpstreamSyncPolicy, Architecture) {
 
         function success() {
             GlobalNotification.setSuccessMessage(translate('Repository %s successfully created.').replace('%s', $scope.repository.name));
@@ -61,7 +61,7 @@ angular.module('Bastion.repositories').controller('NewRepositoryController',
 
         $scope.repository = new Repository({'product_id': $scope.$stateParams.productId, unprotected: true,
             'checksum_type': null, 'mirror_on_sync': true, 'verify_ssl_on_sync': true,
-            'download_policy': BastionConfig.defaultDownloadPolicy,
+            'download_policy': BastionConfig.defaultDownloadPolicy, 'arch' : null,
             'ostree_upstream_sync_policy': 'latest'});
 
         $scope.product = Product.get({id: $scope.$stateParams.productId}, function () {
@@ -88,6 +88,10 @@ angular.module('Bastion.repositories').controller('NewRepositoryController',
 
         GPGKey.queryUnpaged(function (gpgKeys) {
             $scope.gpgKeys = gpgKeys.results;
+        });
+
+        Architecture.queryUnpaged(function (architecture) {
+            $scope.architecture = architecture.results;
         });
 
         $scope.save = function (repository) {
