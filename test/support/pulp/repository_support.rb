@@ -27,20 +27,13 @@ module Katello
     end
 
     def self.create_repo(repo_id)
+      FactoryBot.create(:smart_proxy, :default_smart_proxy) unless ::SmartProxy.pulp_master
+
       @repo = Repository.find_by_id(repo_id)
       @repo.relative_path = @repo.puppet? ? PULP_TMP_DIR : 'test_path'
       @repo.root.url = @repo.puppet? ? @puppet_repo_url : @repo_url
 
-      ::ForemanTasks.sync_task(::Actions::Pulp::Repository::Create,
-                               content_type: @repo.content_type,
-                               pulp_id: @repo.pulp_id,
-                               name: @repo.name,
-                               feed: @repo.url,
-                               unprotected: @repo.unprotected,
-                               checksum_type: @repo.checksum_type,
-                               path: @repo.relative_path,
-                               with_importer: true
-                              )
+      ::ForemanTasks.sync_task(::Actions::Pulp::Repository::Create, @repo)
 
       if @repo.puppet?
         ForemanTasks.sync_task(::Actions::Pulp::Repository::DistributorPublish,

@@ -7,6 +7,13 @@ FactoryBot.modify do
     trait :default_smart_proxy do
       after(:build) do |proxy, _evaluator|
         proxy.features << Feature.find_or_create_by(:name => 'Pulp')
+        proxy.url = "https://#{Socket.gethostname}:9090"
+      end
+    end
+
+    trait :pulp_mirror do
+      after(:build) do |proxy, _evaluator|
+        proxy.features << Feature.find_or_create_by(:name => 'Pulp Node')
       end
     end
   end

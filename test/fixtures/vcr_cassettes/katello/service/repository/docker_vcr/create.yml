@@ -1,0 +1,333 @@
+---
+http_interactions:
+- request:
+    method: delete
+    uri: https://dev.example.com/pulp/api/v2/repositories/Default_Organization-Test-busybox-library/
+    body:
+      encoding: US-ASCII
+      base64_string: ''
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.5.0p0
+      Content-Type:
+      - application/json
+  response:
+    status:
+      code: 404
+      message: Not Found
+    headers:
+      Date:
+      - Tue, 09 Oct 2018 15:49:46 GMT
+      Server:
+      - Apache/2.4.6 (CentOS)
+      Content-Length:
+      - '564'
+      Connection:
+      - close
+      Content-Type:
+      - application/json; charset=utf-8
+    body:
+      encoding: UTF-8
+      base64_string: |
+        eyJodHRwX3JlcXVlc3RfbWV0aG9kIjogIkRFTEVURSIsICJleGNlcHRpb24i
+        OiBudWxsLCAiZXJyb3JfbWVzc2FnZSI6ICJNaXNzaW5nIHJlc291cmNlKHMp
+        OiByZXBvc2l0b3J5PURlZmF1bHRfT3JnYW5pemF0aW9uLVRlc3QtYnVzeWJv
+        eC1saWJyYXJ5IiwgIl9ocmVmIjogIi9wdWxwL2FwaS92Mi9yZXBvc2l0b3Jp
+        ZXMvRGVmYXVsdF9Pcmdhbml6YXRpb24tVGVzdC1idXN5Ym94LWxpYnJhcnkv
+        IiwgImh0dHBfc3RhdHVzIjogNDA0LCAiZXJyb3IiOiB7ImNvZGUiOiAiUExQ
+        MDAwOSIsICJkYXRhIjogeyJyZXNvdXJjZXMiOiB7InJlcG9zaXRvcnkiOiAi
+        RGVmYXVsdF9Pcmdhbml6YXRpb24tVGVzdC1idXN5Ym94LWxpYnJhcnkifX0s
+        ICJkZXNjcmlwdGlvbiI6ICJNaXNzaW5nIHJlc291cmNlKHMpOiByZXBvc2l0
+        b3J5PURlZmF1bHRfT3JnYW5pemF0aW9uLVRlc3QtYnVzeWJveC1saWJyYXJ5
+        IiwgInN1Yl9lcnJvcnMiOiBbXX0sICJ0cmFjZWJhY2siOiBudWxsLCAicmVz
+        b3VyY2VzIjogeyJyZXBvc2l0b3J5IjogIkRlZmF1bHRfT3JnYW5pemF0aW9u
+        LVRlc3QtYnVzeWJveC1saWJyYXJ5In19
+    http_version: 
+  recorded_at: Tue, 09 Oct 2018 15:49:46 GMT
+- request:
+    method: post
+    uri: https://dev.example.com/pulp/api/v2/repositories/
+    body:
+      encoding: UTF-8
+      base64_string: |
+        eyJpZCI6IkRlZmF1bHRfT3JnYW5pemF0aW9uLVRlc3QtYnVzeWJveC1saWJy
+        YXJ5IiwiZGlzcGxheV9uYW1lIjoiYnVzeWJveCIsImltcG9ydGVyX3R5cGVf
+        aWQiOiJkb2NrZXJfaW1wb3J0ZXIiLCJpbXBvcnRlcl9jb25maWciOnsiZmVl
+        ZCI6Imh0dHA6Ly9kb2NrZXIuaW8iLCJ1cHN0cmVhbV9uYW1lIjoiYnVzeWJv
+        eCIsInRhZ3MiOm51bGwsImVuYWJsZV92MSI6ZmFsc2UsInByb3h5X2hvc3Qi
+        Om51bGwsImJhc2ljX2F1dGhfdXNlcm5hbWUiOm51bGwsImJhc2ljX2F1dGhf
+        cGFzc3dvcmQiOm51bGwsInNzbF92YWxpZGF0aW9uIjp0cnVlLCJzc2xfY2xp
+        ZW50X2NlcnQiOm51bGwsInNzbF9jbGllbnRfa2V5IjpudWxsLCJzc2xfY2Ff
+        Y2VydCI6bnVsbH0sIm5vdGVzIjp7Il9yZXBvLXR5cGUiOiJkb2NrZXItcmVw
+        byJ9LCJkaXN0cmlidXRvcnMiOlt7ImRpc3RyaWJ1dG9yX3R5cGVfaWQiOiJk
+        b2NrZXJfZGlzdHJpYnV0b3Jfd2ViIiwiZGlzdHJpYnV0b3JfY29uZmlnIjp7
+        InByb3RlY3RlZCI6ZmFsc2UsInJlcG8tcmVnaXN0cnktaWQiOiJidXN5Ym94
+        In0sImF1dG9fcHVibGlzaCI6dHJ1ZSwiZGlzdHJpYnV0b3JfaWQiOiJEZWZh
+        dWx0X09yZ2FuaXphdGlvbi1UZXN0LWJ1c3lib3gtbGlicmFyeSJ9XX0=
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.5.0p0
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '626'
+  response:
+    status:
+      code: 201
+      message: CREATED
+    headers:
+      Date:
+      - Tue, 09 Oct 2018 15:49:46 GMT
+      Server:
+      - Apache/2.4.6 (CentOS)
+      Content-Length:
+      - '378'
+      Location:
+      - "/pulp/api/v2/repositories/Default_Organization-Test-busybox-library/"
+      Connection:
+      - close
+      Content-Type:
+      - application/json; charset=utf-8
+    body:
+      encoding: UTF-8
+      base64_string: |
+        eyJzY3JhdGNocGFkIjoge30sICJkaXNwbGF5X25hbWUiOiAiYnVzeWJveCIs
+        ICJkZXNjcmlwdGlvbiI6IG51bGwsICJsYXN0X3VuaXRfYWRkZWQiOiBudWxs
+        LCAibm90ZXMiOiB7Il9yZXBvLXR5cGUiOiAiZG9ja2VyLXJlcG8ifSwgImxh
+        c3RfdW5pdF9yZW1vdmVkIjogbnVsbCwgImNvbnRlbnRfdW5pdF9jb3VudHMi
+        OiB7fSwgIl9ucyI6ICJyZXBvcyIsICJfaWQiOiB7IiRvaWQiOiAiNWJiY2Nl
+        MWFiNDdjZWI2ZmQ2ODc5ZGNlIn0sICJpZCI6ICJEZWZhdWx0X09yZ2FuaXph
+        dGlvbi1UZXN0LWJ1c3lib3gtbGlicmFyeSIsICJfaHJlZiI6ICIvcHVscC9h
+        cGkvdjIvcmVwb3NpdG9yaWVzL0RlZmF1bHRfT3JnYW5pemF0aW9uLVRlc3Qt
+        YnVzeWJveC1saWJyYXJ5LyJ9
+    http_version: 
+  recorded_at: Tue, 09 Oct 2018 15:49:46 GMT
+- request:
+    method: get
+    uri: https://dev.example.com/pulp/api/v2/repositories/Default_Organization-Test-busybox-library/?details=true
+    body:
+      encoding: US-ASCII
+      base64_string: ''
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.5.0p0
+      Content-Type:
+      - application/json
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 09 Oct 2018 15:49:46 GMT
+      Server:
+      - Apache/2.4.6 (CentOS)
+      Etag:
+      - '"f784d99eee0eef215e1e4bbe8a8317b0-gzip"'
+      Vary:
+      - Accept-Encoding
+      Content-Length:
+      - '1545'
+      Connection:
+      - close
+      Content-Type:
+      - application/json; charset=utf-8
+    body:
+      encoding: ASCII-8BIT
+      base64_string: |
+        eyJzY3JhdGNocGFkIjoge30sICJkaXNwbGF5X25hbWUiOiAiYnVzeWJveCIs
+        ICJkZXNjcmlwdGlvbiI6IG51bGwsICJkaXN0cmlidXRvcnMiOiBbeyJyZXBv
+        X2lkIjogIkRlZmF1bHRfT3JnYW5pemF0aW9uLVRlc3QtYnVzeWJveC1saWJy
+        YXJ5IiwgImxhc3RfdXBkYXRlZCI6ICIyMDE4LTEwLTA5VDE1OjQ5OjQ2WiIs
+        ICJfaHJlZiI6ICIvcHVscC9hcGkvdjIvcmVwb3NpdG9yaWVzL0RlZmF1bHRf
+        T3JnYW5pemF0aW9uLVRlc3QtYnVzeWJveC1saWJyYXJ5L2Rpc3RyaWJ1dG9y
+        cy9EZWZhdWx0X09yZ2FuaXphdGlvbi1UZXN0LWJ1c3lib3gtbGlicmFyeS8i
+        LCAibGFzdF9vdmVycmlkZV9jb25maWciOiB7fSwgImxhc3RfcHVibGlzaCI6
+        IG51bGwsICJkaXN0cmlidXRvcl90eXBlX2lkIjogImRvY2tlcl9kaXN0cmli
+        dXRvcl93ZWIiLCAiYXV0b19wdWJsaXNoIjogdHJ1ZSwgInNjcmF0Y2hwYWQi
+        OiB7fSwgIl9ucyI6ICJyZXBvX2Rpc3RyaWJ1dG9ycyIsICJfaWQiOiB7IiRv
+        aWQiOiAiNWJiY2NlMWFiNDdjZWI2ZmQ2ODc5ZGQwIn0sICJjb25maWciOiB7
+        InJlcG8tcmVnaXN0cnktaWQiOiAiYnVzeWJveCIsICJwcm90ZWN0ZWQiOiBm
+        YWxzZX0sICJpZCI6ICJEZWZhdWx0X09yZ2FuaXphdGlvbi1UZXN0LWJ1c3li
+        b3gtbGlicmFyeSJ9XSwgImxhc3RfdW5pdF9hZGRlZCI6IG51bGwsICJub3Rl
+        cyI6IHsiX3JlcG8tdHlwZSI6ICJkb2NrZXItcmVwbyJ9LCAibGFzdF91bml0
+        X3JlbW92ZWQiOiBudWxsLCAiY29udGVudF91bml0X2NvdW50cyI6IHt9LCAi
+        X25zIjogInJlcG9zIiwgImltcG9ydGVycyI6IFt7InJlcG9faWQiOiAiRGVm
+        YXVsdF9Pcmdhbml6YXRpb24tVGVzdC1idXN5Ym94LWxpYnJhcnkiLCAibGFz
+        dF91cGRhdGVkIjogIjIwMTgtMTAtMDlUMTU6NDk6NDZaIiwgIl9ocmVmIjog
+        Ii9wdWxwL2FwaS92Mi9yZXBvc2l0b3JpZXMvRGVmYXVsdF9Pcmdhbml6YXRp
+        b24tVGVzdC1idXN5Ym94LWxpYnJhcnkvaW1wb3J0ZXJzL2RvY2tlcl9pbXBv
+        cnRlci8iLCAiX25zIjogInJlcG9faW1wb3J0ZXJzIiwgImltcG9ydGVyX3R5
+        cGVfaWQiOiAiZG9ja2VyX2ltcG9ydGVyIiwgImxhc3Rfb3ZlcnJpZGVfY29u
+        ZmlnIjoge30sICJsYXN0X3N5bmMiOiBudWxsLCAic2NyYXRjaHBhZCI6IG51
+        bGwsICJfaWQiOiB7IiRvaWQiOiAiNWJiY2NlMWFiNDdjZWI2ZmQ2ODc5ZGNm
+        In0sICJjb25maWciOiB7ImZlZWQiOiAiaHR0cDovL2RvY2tlci5pbyIsICJl
+        bmFibGVfdjEiOiBmYWxzZSwgInNzbF92YWxpZGF0aW9uIjogdHJ1ZSwgInVw
+        c3RyZWFtX25hbWUiOiAiYnVzeWJveCJ9LCAiaWQiOiAiZG9ja2VyX2ltcG9y
+        dGVyIn1dLCAibG9jYWxseV9zdG9yZWRfdW5pdHMiOiAwLCAiX2lkIjogeyIk
+        b2lkIjogIjViYmNjZTFhYjQ3Y2ViNmZkNjg3OWRjZSJ9LCAidG90YWxfcmVw
+        b3NpdG9yeV91bml0cyI6IDAsICJpZCI6ICJEZWZhdWx0X09yZ2FuaXphdGlv
+        bi1UZXN0LWJ1c3lib3gtbGlicmFyeSIsICJfaHJlZiI6ICIvcHVscC9hcGkv
+        djIvcmVwb3NpdG9yaWVzL0RlZmF1bHRfT3JnYW5pemF0aW9uLVRlc3QtYnVz
+        eWJveC1saWJyYXJ5LyJ9
+    http_version: 
+  recorded_at: Tue, 09 Oct 2018 15:49:46 GMT
+- request:
+    method: delete
+    uri: https://dev.example.com/pulp/api/v2/repositories/Default_Organization-Test-busybox-library/
+    body:
+      encoding: US-ASCII
+      base64_string: ''
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.5.0p0
+      Content-Type:
+      - application/json
+  response:
+    status:
+      code: 202
+      message: Accepted
+    headers:
+      Date:
+      - Tue, 09 Oct 2018 15:49:46 GMT
+      Server:
+      - Apache/2.4.6 (CentOS)
+      Content-Length:
+      - '172'
+      Connection:
+      - close
+      Content-Type:
+      - application/json; charset=utf-8
+    body:
+      encoding: UTF-8
+      base64_string: |
+        eyJzcGF3bmVkX3Rhc2tzIjogW3siX2hyZWYiOiAiL3B1bHAvYXBpL3YyL3Rh
+        c2tzLzU2NjQxOGMyLTc5NzQtNDBjMS04ZTE5LWFlNWVkNzY3YzIzNC8iLCAi
+        dGFza19pZCI6ICI1NjY0MThjMi03OTc0LTQwYzEtOGUxOS1hZTVlZDc2N2My
+        MzQifV0sICJyZXN1bHQiOiBudWxsLCAiZXJyb3IiOiBudWxsfQ==
+    http_version: 
+  recorded_at: Tue, 09 Oct 2018 15:49:46 GMT
+- request:
+    method: get
+    uri: https://dev.example.com/pulp/api/v2/tasks/566418c2-7974-40c1-8e19-ae5ed767c234/
+    body:
+      encoding: US-ASCII
+      base64_string: ''
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.5.0p0
+      Content-Type:
+      - application/json
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 09 Oct 2018 15:49:46 GMT
+      Server:
+      - Apache/2.4.6 (CentOS)
+      Etag:
+      - '"00a5bb0b6d7a17a1c861abf51116f183-gzip"'
+      Vary:
+      - Accept-Encoding
+      Content-Length:
+      - '574'
+      Connection:
+      - close
+      Content-Type:
+      - application/json; charset=utf-8
+    body:
+      encoding: ASCII-8BIT
+      base64_string: |
+        eyJleGNlcHRpb24iOiBudWxsLCAidGFza190eXBlIjogInB1bHAuc2VydmVy
+        LnRhc2tzLnJlcG9zaXRvcnkuZGVsZXRlIiwgIl9ocmVmIjogIi9wdWxwL2Fw
+        aS92Mi90YXNrcy81NjY0MThjMi03OTc0LTQwYzEtOGUxOS1hZTVlZDc2N2My
+        MzQvIiwgInRhc2tfaWQiOiAiNTY2NDE4YzItNzk3NC00MGMxLThlMTktYWU1
+        ZWQ3NjdjMjM0IiwgInRhZ3MiOiBbInB1bHA6cmVwb3NpdG9yeTpEZWZhdWx0
+        X09yZ2FuaXphdGlvbi1UZXN0LWJ1c3lib3gtbGlicmFyeSIsICJwdWxwOmFj
+        dGlvbjpkZWxldGUiXSwgImZpbmlzaF90aW1lIjogbnVsbCwgIl9ucyI6ICJ0
+        YXNrX3N0YXR1cyIsICJzdGFydF90aW1lIjogbnVsbCwgInRyYWNlYmFjayI6
+        IG51bGwsICJzcGF3bmVkX3Rhc2tzIjogW10sICJwcm9ncmVzc19yZXBvcnQi
+        OiB7fSwgInF1ZXVlIjogIiIsICJzdGF0ZSI6ICJ3YWl0aW5nIiwgIndvcmtl
+        cl9uYW1lIjogbnVsbCwgInJlc3VsdCI6IG51bGwsICJlcnJvciI6IG51bGws
+        ICJfaWQiOiB7IiRvaWQiOiAiNWJiY2NlMWEzZjE0YTAwMTNhZTZlMGVmIn0s
+        ICJpZCI6ICI1YmJjY2UxYTNmMTRhMDAxM2FlNmUwZWYifQ==
+    http_version: 
+  recorded_at: Tue, 09 Oct 2018 15:49:46 GMT
+- request:
+    method: get
+    uri: https://dev.example.com/pulp/api/v2/tasks/566418c2-7974-40c1-8e19-ae5ed767c234/
+    body:
+      encoding: US-ASCII
+      base64_string: ''
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.5.0p0
+      Content-Type:
+      - application/json
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 09 Oct 2018 15:49:46 GMT
+      Server:
+      - Apache/2.4.6 (CentOS)
+      Etag:
+      - '"5b2ca4aad9be648c4d77c67740c69d0b-gzip"'
+      Vary:
+      - Accept-Encoding
+      Content-Length:
+      - '697'
+      Connection:
+      - close
+      Content-Type:
+      - application/json; charset=utf-8
+    body:
+      encoding: ASCII-8BIT
+      base64_string: |
+        eyJleGNlcHRpb24iOiBudWxsLCAidGFza190eXBlIjogInB1bHAuc2VydmVy
+        LnRhc2tzLnJlcG9zaXRvcnkuZGVsZXRlIiwgIl9ocmVmIjogIi9wdWxwL2Fw
+        aS92Mi90YXNrcy81NjY0MThjMi03OTc0LTQwYzEtOGUxOS1hZTVlZDc2N2My
+        MzQvIiwgInRhc2tfaWQiOiAiNTY2NDE4YzItNzk3NC00MGMxLThlMTktYWU1
+        ZWQ3NjdjMjM0IiwgInRhZ3MiOiBbInB1bHA6cmVwb3NpdG9yeTpEZWZhdWx0
+        X09yZ2FuaXphdGlvbi1UZXN0LWJ1c3lib3gtbGlicmFyeSIsICJwdWxwOmFj
+        dGlvbjpkZWxldGUiXSwgImZpbmlzaF90aW1lIjogIjIwMTgtMTAtMDlUMTU6
+        NDk6NDZaIiwgIl9ucyI6ICJ0YXNrX3N0YXR1cyIsICJzdGFydF90aW1lIjog
+        IjIwMTgtMTAtMDlUMTU6NDk6NDZaIiwgInRyYWNlYmFjayI6IG51bGwsICJz
+        cGF3bmVkX3Rhc2tzIjogW10sICJwcm9ncmVzc19yZXBvcnQiOiB7fSwgInF1
+        ZXVlIjogInJlc2VydmVkX3Jlc291cmNlX3dvcmtlci0xQGRldi5leGFtcGxl
+        LmNvbS5kcTIiLCAic3RhdGUiOiAiZmluaXNoZWQiLCAid29ya2VyX25hbWUi
+        OiAicmVzZXJ2ZWRfcmVzb3VyY2Vfd29ya2VyLTFAZGV2LmV4YW1wbGUuY29t
+        IiwgInJlc3VsdCI6IG51bGwsICJlcnJvciI6IG51bGwsICJfaWQiOiB7IiRv
+        aWQiOiAiNWJiY2NlMWEzZjE0YTAwMTNhZTZlMGVmIn0sICJpZCI6ICI1YmJj
+        Y2UxYTNmMTRhMDAxM2FlNmUwZWYifQ==
+    http_version: 
+  recorded_at: Tue, 09 Oct 2018 15:49:46 GMT
+recorded_with: VCR 3.0.3
