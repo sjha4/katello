@@ -8,10 +8,8 @@ module Actions
         end
 
         def invoke_external_task
-          output[:pulp_tasks] = pulp_extensions.repository.delete(input[:pulp_id])
-        rescue RestClient::ResourceNotFound
-          Rails.logger.warn("Tried to delete repository #{input[:pulp_id]}, but it did not exist.")
-          []
+          repo = ::Katello::Repository.find_by(:pulp_id => input[:pulp_id])
+          output[:pulp_tasks] = repo.backend_service(smart_proxy(input[:capsule_id])).delete
         end
       end
     end
