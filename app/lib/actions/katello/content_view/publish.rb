@@ -102,7 +102,7 @@ module Actions
             end
           end
 
-          if ::Katello::CapsuleContent.sync_needed?(environment)
+          if SmartProxy.sync_needed?(environment)
             ForemanTasks.async_task(ContentView::CapsuleSync,
                                     view,
                                     environment)
