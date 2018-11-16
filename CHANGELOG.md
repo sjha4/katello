@@ -1,19 +1,16 @@
-# 3.8.0 Stout (2018-08-29)
+# 3.8.1 Stout (2018-11-16)
 
 ## Features
-
-### Tests
- * Port robottelo tests - repository ([#23910](https://projects.theforeman.org/issues/23910), [473fd3d2](https://github.com/Katello/katello.git/commit/473fd3d28de278e422b8cda19f9bf4fe5e1a13be))
- * Port robottelo tests - sync_plan ([#23802](https://projects.theforeman.org/issues/23802), [9e225cf5](https://github.com/Katello/katello.git/commit/9e225cf550763683457ec52b15f456f01f83f944))
- * Port robottelo tests for host_collection ([#23780](https://projects.theforeman.org/issues/23780), [8da1e39e](https://github.com/Katello/katello.git/commit/8da1e39e01c9f50363c9d5569a554cce58087741))
- * Port robottelo tests for product ([#23758](https://projects.theforeman.org/issues/23758), [c796333b](https://github.com/Katello/katello.git/commit/c796333b0426f2a5b71095912afe62966f6df6bc))
- * Port robottelo tests for activation_key ([#23400](https://projects.theforeman.org/issues/23400), [3b32a48a](https://github.com/Katello/katello.git/commit/3b32a48a9139daa60139342461896634bde3bc48), [3c582906](https://github.com/Katello/katello.git/commit/3c582906fa1c024532370d7527e11d68813c5d3d))
- * Port robottelo tests for cv filters ([#23712](https://projects.theforeman.org/issues/23712), [afea362f](https://github.com/Katello/katello.git/commit/afea362fd966580597ba7a3533a98f6091f647bd), [2d881437](https://github.com/Katello/katello.git/commit/2d881437a45827cf6cbf13f8a414a3f2a9fbccee))
- * Port robottelo tests for content views ([#23676](https://projects.theforeman.org/issues/23676), [51cb879e](https://github.com/Katello/katello.git/commit/51cb879eb3bc53a3a96c6e11183af6e63a4d2776), [dd7aa68e](https://github.com/Katello/katello.git/commit/dd7aa68e01ebbb45c10987f9a56e288e491e33ea), [e300ab98](https://github.com/Katello/katello.git/commit/e300ab98fdd36b7e6f6eb733deb32e0b4996f4b0))
 
 ### Docker
  * As a container image admin, I want option to expose some images without requiring login ([#23899](https://projects.theforeman.org/issues/23899), [672482a8](https://github.com/Katello/katello.git/commit/672482a87745838babeab553ec0adf842e9dcb81))
  * Docker Regsitry Image Name Format on katello ([#18964](https://projects.theforeman.org/issues/18964), [961148c0](https://github.com/Katello/katello.git/commit/961148c07b550096bd8ec9b57dd5b3cc5a8bbed3))
+
+### Tests
+ * Port robottelo tests - sync_plan ([#23802](https://projects.theforeman.org/issues/23802), [9e225cf5](https://github.com/Katello/katello.git/commit/9e225cf550763683457ec52b15f456f01f83f944))
+ * Port robottelo tests for host_collection ([#23780](https://projects.theforeman.org/issues/23780), [8da1e39e](https://github.com/Katello/katello.git/commit/8da1e39e01c9f50363c9d5569a554cce58087741))
+ * Port robottelo tests for product ([#23758](https://projects.theforeman.org/issues/23758), [c796333b](https://github.com/Katello/katello.git/commit/c796333b0426f2a5b71095912afe62966f6df6bc))
+ * Port robottelo tests for activation_key ([#23400](https://projects.theforeman.org/issues/23400), [3b32a48a](https://github.com/Katello/katello.git/commit/3b32a48a9139daa60139342461896634bde3bc48), [3c582906](https://github.com/Katello/katello.git/commit/3c582906fa1c024532370d7527e11d68813c5d3d))
 
 ### Installer
  * Allow overriding the "Options" httpd directive for /pub directory ([#23624](https://projects.theforeman.org/issues/23624), [b872115e](https://github.com/Katello/puppet-katello/commit/b872115eb74446b6692584c5f324dba5fe311924))
@@ -34,6 +31,9 @@
 
 ## Bug Fixes
 
+### Hammer
+ * Limit gemspec hammer dependency versions for released hammer-cli-katello gem ([#24806](https://projects.theforeman.org/issues/24806))
+
 ### Errata Management
  * Link "Click here to select Errata for an Incremental Update" doesn't work ([#24543](https://projects.theforeman.org/issues/24543), [f5f4a0fd](https://github.com/Katello/katello.git/commit/f5f4a0fd38b2e7ca0629a09cfd05f14149b60bd8))
 
@@ -45,7 +45,6 @@
 
 ### Tests
  * react/jest test failures ([#24423](https://projects.theforeman.org/issues/24423), [c37ea4a5](https://github.com/Katello/katello.git/commit/c37ea4a53a492c04e849a208977e178923627b8c))
- * clean up test output for jest (react) tests ([#24336](https://projects.theforeman.org/issues/24336), [63746060](https://github.com/Katello/katello.git/commit/63746060ec97dfbfea0908e922a98fbe13d32db8))
  * eslint error on master ([#24254](https://projects.theforeman.org/issues/24254), [f2ff28bd](https://github.com/Katello/katello.git/commit/f2ff28bd3b8b2966776ef8333bf5e0fd17430645))
  * Katello host tests do not add puppet environment to orgs/locs ([#24239](https://projects.theforeman.org/issues/24239), [211ba4ee](https://github.com/Katello/katello.git/commit/211ba4ee8f210048d4cb69f0ad2672cb5d638518))
  * Use 3.8 apipie cache in hammer-cli-katello ([#24076](https://projects.theforeman.org/issues/24076), [5d55dd8d](https://github.com/Katello/hammer-cli-katello.git/commit/5d55dd8d954305f0c007cebdf197e1e29e81a924))
@@ -90,6 +89,8 @@
 
 ### Other
  * katello.yaml config for container image registry ([#24070](https://projects.theforeman.org/issues/24070), [16a25881](https://github.com/Katello/puppet-katello/commit/16a25881c775508323adaf55600f534758ff4479))
+ * Port robottelo tests for cv filters ([#23712](https://projects.theforeman.org/issues/23712), [afea362f](https://github.com/Katello/katello.git/commit/afea362fd966580597ba7a3533a98f6091f647bd), [2d881437](https://github.com/Katello/katello.git/commit/2d881437a45827cf6cbf13f8a414a3f2a9fbccee))
+ * Port robottelo tests for content views ([#23676](https://projects.theforeman.org/issues/23676), [51cb879e](https://github.com/Katello/katello.git/commit/51cb879eb3bc53a3a96c6e11183af6e63a4d2776), [dd7aa68e](https://github.com/Katello/katello.git/commit/dd7aa68e01ebbb45c10987f9a56e288e491e33ea), [e300ab98](https://github.com/Katello/katello.git/commit/e300ab98fdd36b7e6f6eb733deb32e0b4996f4b0))
  * katello_devel puppet module references file that moved, breaking devel install ([#23648](https://projects.theforeman.org/issues/23648))
  * Update Contacts & Resources ([#23639](https://projects.theforeman.org/issues/23639), [82ee6946](https://github.com/Katello/katello.git/commit/82ee6946c22d0fc3e63c709d7888cce0f2f90db1), [90e80a81](https://github.com/Katello/katello.git/commit/90e80a81799f121e01a7f409cf9c3245674d9031))
  * undefined method `before_promote_hooks' ([#23636](https://projects.theforeman.org/issues/23636), [263afc68](https://github.com/Katello/katello.git/commit/263afc6895d2fb850592d0001d978af2980fb2d5))
