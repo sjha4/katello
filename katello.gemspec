@@ -46,6 +46,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency "pulp_file_client", "< 3.0.0"
   gem.add_dependency "pulp_ansible_client"
 
+
   # UI
   gem.add_dependency "deface", '>= 1.0.2', '< 2.0.0'
   gem.add_dependency "angular-rails-templates", "~> 1.0.2"

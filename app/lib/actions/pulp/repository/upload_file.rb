@@ -11,6 +11,9 @@ module Actions
           File.open(input[:file], "rb") do |file|
             offset = 0
             while (chunk = file.read(upload_chunk_size))
+              100.times do
+                puts chunk.class
+              end
               pulp_resources.content.upload_bits(input[:upload_id], offset, chunk)
               offset += upload_chunk_size
             end

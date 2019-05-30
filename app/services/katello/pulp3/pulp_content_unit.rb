@@ -1,5 +1,6 @@
 require 'set'
 require 'pulp_file_client'
+require 'pulpcore_client'
 
 module Katello
   module Pulp3
@@ -28,6 +29,14 @@ module Katello
 
       def self.unit_identifier
         "_href"
+      end
+
+      def self.core_api_client
+        PulpcoreClient::ApiClient.new(SmartProxy.pulp_master!.pulp3_configuration(PulpcoreClient::Configuration))
+      end
+
+      def self.uploads_api
+        PulpcoreClient::UploadsApi.new(core_api_client)
       end
 
       def self.pulp_units_batch_for_repo(repository, page_size = SETTINGS[:katello][:pulp][:bulk_load_size])
@@ -66,6 +75,45 @@ module Katello
 
       def self.fetch_content_list(page_opts)
         content_unit_list page_opts
+      end
+
+      def self.upload_unit(chunk_file, content_range, upload_href)
+        if upload_href
+          response = uploads_api.update(upload_href, content_range, chunk_file)
+        else
+          fail("Upload href not provided")
+        end
+        response
+      rescue PulpcoreClient::ApiError => e
+        puts "Exception when calling UploadsApi : #{e}"
+        nil
+      end
+
+      def self.create_upload(total_size)
+        upload_data = PulpcoreClient::Upload.new({size: total_size
+                                                 })
+        response = uploads_api.create(upload_data)
+      end
+
+      def self.upload_unit_once(chunk, offset = 0, upload_href = nil)
+        response = SmartProxy.pulp_master!.pulp3_api.uploads_create_and_check(chunk, Digest::MD5.hexdigest(File.read(chunk)))
+      rescue PulpcoreClient::ApiError => e
+        puts "Exception when calling UploadsApi : #{e}"
+        nil
+      end
+
+      def self.commit_upload(upload_href, checksum)
+        upload_commit_data = PulpcoreClient::Upload.new({sha256: checksum
+                                                 })
+        response = uploads_api.commit(upload_href, upload_commit_data)
+      end
+      # Returns Instance of PulpcoreClient::Artifact
+      def self.create_artifact_from_upload(upload_href, checksum)
+        opts = {
+            md5: checksum,
+            upload: upload_href
+        }
+        response = SmartProxy.pulp_master!.pulp3_api.artifacts_create(opts)
       end
     end
   end
