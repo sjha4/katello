@@ -28,12 +28,43 @@ module Katello
       validates :host, :presence => true, :allow_blank => false
       validates_with Validators::ContentViewEnvironmentValidator
 
-      def update_repositories_by_paths(paths)
-        paths = paths.map { |path| path.gsub('/pulp/repos/', '') }
-        repos = Repository.where(:relative_path => paths)
+      def bindable_types
+        [
+          {
+            type: Repository::DEB_TYPE,
+            matcher: '/pulp/deb/',
+            paths: []
+          },
+          {
+            type: Repository::YUM_TYPE,
+            matcher: '/pulp/repos/',
+            paths: []
+          }
+        ]
+      end
 
-        missing = paths - repos.pluck(:relative_path)
-        missing.each do |repo_path|
+      def update_repositories_by_paths(paths)
+        bindable_paths = bindable_types
+        relative_paths = []
+
+        paths.each do |path|
+          bindable_paths.each do |supported|
+            relative_path = path.gsub(supported[:matcher], '')
+            relative_paths << relative_path
+            if path.starts_with?(supported[:matcher])
+              supported[:paths] << relative_path
+              break
+            end
+          end
+        end
+
+        repos = bindable_paths.flat_map do |supported|
+          repos = Repository.joins(:root).where(RootRepository.table_name => {content_type: supported[:type]}, relative_path: supported[:paths])
+          relative_paths -= repos.pluck(:relative_path)
+          repos
+        end
+
+        relative_paths.each do |repo_path|
           Rails.logger.warn("System #{self.host.name} (#{self.host.id}) requested binding to unknown repo #{repo_path}")
         end
 

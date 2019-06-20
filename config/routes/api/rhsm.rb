@@ -47,6 +47,7 @@ Katello::Engine.routes.draw do
       match '/consumers/:id/profiles/' => 'candlepin_dynflow_proxy#upload_profiles', :via => :put
       match '/consumers/:id/profile/' => 'candlepin_dynflow_proxy#upload_package_profile', :via => :put
       match '/consumers/:id/packages/' => 'candlepin_dynflow_proxy#upload_package_profile', :via => :put
+      match '/systems/:id/deb_package_profile' => 'candlepin_dynflow_proxy#deb_package_profile', :via => :put
       match '/consumers/:id/tracer/' => 'candlepin_proxies#upload_tracer_profile', :via => :put
       match '/consumers/:id/checkin/' => 'candlepin_proxies#checkin', :via => :put
       match '/consumers/:id' => 'candlepin_proxies#facts', :via => :put

@@ -185,8 +185,8 @@ module Katello
     end
     param :id, String, :desc => N_("UUID of the system"), :required => true
     def enabled_repos
-      repos_params = params['enabled_repos'] rescue raise(HttpErrors::BadRequest, _("Expected attribute is missing:") + " enabled_repos")
-      repos_params = repos_params['repos'] || []
+      repos_params = params.dig('enabled_repos', 'repos')
+      fail(HttpErrors::BadRequest, _("The request did not contain any repository information.")) if repos_params.nil?
 
       result = nil
       User.as_anonymous_admin do
