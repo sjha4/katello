@@ -66,9 +66,11 @@ module Katello
 
     has_many :yum_metadata_files, :dependent => :destroy, :class_name => "Katello::YumMetadataFile"
 
-    has_many :docker_tags, :dependent => :destroy, :class_name => "Katello::DockerTag"
+    has_many :repository_docker_tags, :class_name => "Katello::RepositoryDockerTag", :dependent => :delete_all
+    has_many :docker_tags, :through => :repository_docker_tags
 
-    has_many :docker_meta_tags, :dependent => :destroy, :class_name => "Katello::DockerMetaTag"
+    has_many :repository_docker_meta_tags, :class_name => "Katello::RepositoryDockerMetaTag", :dependent => :delete_all
+    has_many :docker_meta_tags, :through => :repository_docker_meta_tags
 
     has_many :repository_ostree_branches, :class_name => "Katello::RepositoryOstreeBranch", :dependent => :delete_all
     has_many :ostree_branches, :through => :repository_ostree_branches
@@ -156,7 +158,7 @@ module Katello
              :download_policy, :verify_ssl_on_sync, :"verify_ssl_on_sync?", :upstream_username, :upstream_password,
              :ostree_upstream_sync_policy, :ostree_upstream_sync_depth, :deb_releases, :deb_components, :deb_architectures,
              :ignore_global_proxy, :ssl_ca_cert_id, :ssl_ca_cert, :ssl_client_cert, :ssl_client_cert_id, :ssl_client_key_id,
-             :ssl_client_key, :ignorable_content, :description, :docker_tags_whitelist, :ansible_collection_whitelist, :http_proxy_policy, :http_proxy_id, :to => :root
+             :ssl_client_key, :ignorable_content, :description, :docker_tags_whitelist, :ansible_collection_requirements, :http_proxy_policy, :http_proxy_id, :to => :root
 
     def self.with_type(content_type)
       joins(:root).where("#{RootRepository.table_name}.content_type" => content_type)

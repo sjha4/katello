@@ -35,7 +35,7 @@
                 id="content_type"
                 name="content_type"
                 ng-model="repository.content_type"
-                ng-options="type.name as type.name for type in repositoryTypes">
+                ng-options="type.name as type.name.replace('_',' ') for type in repositoryTypes">
         </select>
       </div>
 
@@ -52,7 +52,7 @@
     </div>
     <div ng-show="repository.content_type !== undefined">
       <h4 translate> Sync Settings </h4>
-      <div bst-form-group label="{{ 'Upstream URL' | translate }}">
+      <div bst-form-group label="{{ 'Upstream URL' | translate }} ">
         <input id="url"
                name="url"
                ng-model="repository.url"
@@ -61,20 +61,29 @@
           URL of the registry you want to sync. Example: https://registry-1.docker.io/
         </p>
         <p class="help-block" ng-show="repository.content_type === 'ansible_collection'" translate>
-          URL of the ansible content sharing hub you want to sync. Example: https://galaxy.ansible.com
+          Content synced depends on the specifity of the URL and/or the optional requirements.yaml specified below <a class="fa fa-question-circle" ng-show="repository.content_type === 'ansible_collection'"
+                                                                      uib-popover-html="collectionURLPopover" popover-class="popover-large" popover-trigger="'outsideClick'" popover-append-to-body="true" popover-title="Upstream URL">
+        </a>
         </p>
 
       </div>
 
-      <div ng-show="repository.content_type === 'ansible_collection'" bst-form-group label="{{ 'Whitelist' | translate }}">
-        <textarea id="collection_whitelist"
-               name="collection_whitelists"
-               ng-model="repository.ansible_collection_whitelist"
+      <div ng-show="repository.content_type === 'ansible_collection'" bst-form-group label="{{ 'Requirements.yml' | translate }}">
+        <textarea id="ansible_collection_requirements"
+               name="ansible_collection_requirements"
+               ng-model="repository.ansible_collection_requirements"
+               rows="10"
+               placeholder= "{{ 'You can upload a requirements.yml file below to auto-fill contents or paste contents of requirement.yml here' | translate }}"
                type="text"/>
-        <p class="help-block" translate>
-          Name / Comma-separated names of ansible collection(s) you want to sync from the galaxy. ex: newswangerd.collection_demo, devoperate.base
-        </p>
       </div>
+
+      <div class="form-group" ng-show="repository.content_type === 'ansible_collection'">
+        <input id="requirementFile" type="file" name="file_path" onclick="this.value = null" onchange="angular.element(this).scope().handleFiles(this)"/>
+        <p class="help-block" translate>Upload Requirements.yml file <a class="fa fa-question-circle" ng-show="repository.content_type === 'ansible_collection'"
+                                                                        uib-popover-html="requirementPopover" popover-class="popover-large" popover-trigger="'outsideClick'" popover-append-to-body="true">
+        </a></p>
+      </div>
+
 
       <div ng-show="repository.content_type === 'deb'" bst-form-group label="{{ 'Releases' | translate }}">
         <input id="deb_releases"
@@ -117,9 +126,9 @@
                ng-model="repository.ostree_upstream_sync_depth"
                type="number"
                ng-disabled="repository.ostree_upstream_sync_policy !== 'custom'"/>
-        <h6 translate>
+        <p class="help-block" translate>
           Choose one of the policy selections for downloading ostree content from upstream url during synchronization. Choose "Latest" for downloading the latest version of the upstream branch. Choose "All History" to download all available versions of the upstream repository (this may take a large amount of space). Choose "Custom Depth" and provide an number to indicate the number of prior versions of the upstream branch to download.
-        </h6>
+        </p>
 
       </div>
 
@@ -143,9 +152,9 @@
                 ng-options="id as name for (id, name) in ignorableYumContentUnits">
         </select>
 
-        <h6 translate>
+        <p class="help-block" translate>
           Select content units to ignore while synchronizing this repository.
-        </h6>
+        </p>
       </div>
 
       <div class="checkbox">
