@@ -12,10 +12,6 @@ module Katello
     has_many :content_facet_errata, :class_name => "Katello::ContentFacetErratum", :dependent => :destroy, :inverse_of => :content_facet
     has_many :content_facets, :through => :content_facet_errata, :class_name => "Katello::Host::ContentFacet", :source => :content_facet
     has_many :content_facets_applicable, :through => :content_facet_errata, :class_name => "Katello::Host::ContentFacet", :source => :content_facet
-
-    has_many :repository_errata, :class_name => "Katello::RepositoryErratum", :dependent => :destroy, :inverse_of => :erratum
-    has_many :repositories, :through => :repository_errata, :class_name => "Katello::Repository"
-
     has_many :bugzillas, :class_name => "Katello::ErratumBugzilla", :dependent => :destroy, :inverse_of => :erratum
     has_many :cves, :class_name => "Katello::ErratumCve", :dependent => :destroy, :inverse_of => :erratum
     has_many :packages, :class_name => "Katello::ErratumPackage", :dependent => :destroy, :inverse_of => :erratum
@@ -53,10 +49,6 @@ module Katello
     scope :enhancement, -> { of_type(Erratum::ENHANCEMENT) }
     scope :modular, -> { where(:id => Erratum.joins(:packages => :module_stream_errata_packages)) }
     scope :non_modular, -> { where.not(:id => modular) }
-
-    def self.repository_association_class
-      RepositoryErratum
-    end
 
     def self.content_facet_association_class
       ContentFacetErratum
@@ -118,6 +110,16 @@ module Katello
       Katello::ErratumPackage.joins(:erratum => :repository_errata).
           where("#{RepositoryErratum.table_name}.repository_id" => repo.id).
           where(statement).pluck(:filename)
+    end
+
+    def self.list_modular_streams_by_clauses(repo, clauses)
+      query_clauses = clauses.map do |clause|
+        "(#{clause.to_sql})"
+      end
+      statement = query_clauses.join(" OR ")
+      ModuleStream.where(:id => ModuleStreamErratumPackage.joins(:erratum_package => {:erratum => :repository_errata}).
+          where("#{RepositoryErratum.table_name}.repository_id" => repo.id).
+          where(statement).select("#{ModuleStreamErratumPackage.table_name}.module_stream_id"))
     end
 
     def module_streams
