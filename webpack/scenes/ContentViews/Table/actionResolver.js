@@ -15,7 +15,9 @@ const actionResolver = (rowData, { _rowIndex }) => {
     },
     {
       title: 'Copy',
-      onClick: (_event, rowId, _rowInfo) => console.log(`clicked on row ${rowId}`),
+      onClick: (_event, rowId, rowInfo) => {
+        console.log(`clicked on row ${rowInfo.cells[0].props['id']} ${rowInfo.cells[0].props['name']}`);
+      }
     },
     {
       title: 'Delete',

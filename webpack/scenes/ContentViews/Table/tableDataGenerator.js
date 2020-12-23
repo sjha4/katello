@@ -27,7 +27,7 @@ const buildRow = (contentView, openColumn) => {
     id, composite, name, environments, versions, last_published: lastPublished,
   } = contentView;
   const row = [
-    { title: <ContentViewIcon composite={composite ? true : undefined} /> },
+    { title: <ContentViewIcon composite={composite ? true : undefined} /> , props: { id: id, name: name } },
     { title: <Link to={urlBuilder('labs/content_views', '', id)}>{name}</Link> },
     lastPublished || 'Not yet published',
     { title: __('Details'), props: { isOpen: false, ariaControls: `cv-details-expansion-${id}` } },
@@ -41,7 +41,6 @@ const buildRow = (contentView, openColumn) => {
     },
   ];
   if (openColumn) row[openColumn].props.isOpen = true;
-
   return row;
 };
 
