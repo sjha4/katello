@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSelector, shallowEqual } from 'react-redux';
 import { Grid, GridItem, TextContent, Text, TextVariants, Button, Flex, FlexItem } from '@patternfly/react-core';
 import { ExternalLinkAltIcon } from '@patternfly/react-icons';
@@ -16,10 +16,12 @@ import ContentViewFilterDetails from './Filters/ContentViewFilterDetails';
 import { selectCVDetails } from './ContentViewDetailSelectors';
 import RoutedTabs from '../../../components/RoutedTabs';
 import ContentViewIcon from '../components/ContentViewIcon';
+import PublishContentViewWizard from '../Publish/PublishContentViewWizard';
 
 const ContentViewDetails = ({ match }) => {
   const cvId = parseInt(match.params.id, 10);
   const details = useSelector(state => selectCVDetails(state, cvId), shallowEqual);
+  const [isPublishModalOpen, setIsPublishModalOpen] = useState(false);
 
   const { name, composite } = details;
   const tabs = [
@@ -72,7 +74,13 @@ const ContentViewDetails = ({ match }) => {
               </FlexItem>
             </Flex>
           </GridItem>
-          <GridItem span={4} style={{ textAlign: 'right' }}>
+          <GridItem span={2} style={{ align: 'right', textAlign: 'right' }}>
+            <Button onClick={() => setIsPublishModalOpen(true)} variant="primary" aria-label="publish_content_view">
+              Publish new Version
+            </Button>
+            <PublishContentViewWizard details={details} show={isPublishModalOpen} setIsOpen={setIsPublishModalOpen} aria-label="publish_content_view_modal" />
+          </GridItem>
+          <GridItem span={2} style={{ textAlign: 'right' }}>
             <Button
               component="a"
               aria-label="view tasks button"

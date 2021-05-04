@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import { translate as __ } from 'foremanReact/common/I18n';
 import { STATUS } from 'foremanReact/constants';
@@ -9,30 +10,41 @@ import tableDataGenerator from './tableDataGenerator';
 import getContentViews from '../ContentViewsActions';
 import CreateContentViewModal from '../Create/CreateContentViewModal';
 import CopyContentViewModal from '../Copy/CopyContentViewModal';
+import PublishContentViewWizard from '../Publish/PublishContentViewWizard';
+import { selectContentViews, selectContentViewStatus, selectContentViewError } from '../ContentViewSelectors';
 
-const ContentViewTable = ({ response, status, error }) => {
+const ContentViewTable = () => {
+  const response = useSelector(selectContentViews);
+  const status = useSelector(selectContentViewStatus);
+  const error = useSelector(selectContentViewError);
   const [table, setTable] = useState({ rows: [], columns: [] });
   const [rowMappingIds, setRowMappingIds] = useState([]);
   const [searchQuery, updateSearchQuery] = useState('');
-  const { results, ...metadata } = response;
   const loadingResponse = status === STATUS.PENDING;
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [copy, setCopy] = useState(false);
+  const [results, setResults] = useState([]);
+  const [metadata, setMetadata] = useState({});
+  const [isPublishModalOpen, setIsPublishModalOpen] = useState(false);
   const [actionableCvId, setActionableCvId] = useState('');
   const [actionableCvName, setActionableCvName] = useState('');
+  const [actionableCvComposite, setActionableCvComposite] = useState(false);
   function openForm() {
     setIsModalOpen(true);
   }
 
   useEffect(
     () => {
+      const { results, ...metadata } = response;
       if (!loadingResponse && results) {
+        setResults(results);
+        setMetadata(metadata);
         const { newRowMappingIds, ...tableData } = tableDataGenerator(results);
         setTable(tableData);
         setRowMappingIds(newRowMappingIds);
       }
     },
-    [results, loadingResponse, setTable, setRowMappingIds],
+    [JSON.stringify(response), loadingResponse, setTable, setRowMappingIds],
   );
 
   const onSelect = (_event, isSelected, rowId) => {
@@ -68,9 +80,11 @@ const ContentViewTable = ({ response, status, error }) => {
     return [
       {
         title: 'Publish and Promote',
-        isDisabled: true,
         onClick: (_event, rowId, rowInfo) => {
-          console.log(`clicked on row ${JSON.stringify(rowInfo)}`);
+          setIsPublishModalOpen(true);
+          setActionableCvId(rowInfo.cvId.toString());
+          setActionableCvName(rowInfo.cvName);
+          setActionableCvComposite(rowInfo.cvComposite);
         },
       },
       {
@@ -106,6 +120,7 @@ const ContentViewTable = ({ response, status, error }) => {
     return STATUS.PENDING; // Fallback to pending
   };
 
+  const additionalListeners = new Array(isPublishModalOpen);
   const emptyContentTitle = __("You currently don't have any Content Views.");
   const emptyContentBody = __('A content view can be added by using the "New content view" button below.');
   const emptySearchTitle = __('No matching content views found');
@@ -126,6 +141,7 @@ const ContentViewTable = ({ response, status, error }) => {
         actionResolver,
         searchQuery,
         updateSearchQuery,
+        additionalListeners,
       }}
       variant={TableVariant.compact}
       status={tableStatus()}
@@ -144,24 +160,16 @@ const ContentViewTable = ({ response, status, error }) => {
       <React.Fragment>
         <CopyContentViewModal cvId={actionableCvId} cvName={actionableCvName} show={copy} setIsOpen={setCopy} aria-label="copy_content_view_modal" />
       </React.Fragment>
+      <React.Fragment>
+        <PublishContentViewWizard
+          details={{ id: actionableCvId, name: actionableCvName, composite: actionableCvComposite }}
+          show={isPublishModalOpen}
+          setIsOpen={setIsPublishModalOpen}
+          aria-label="publish_content_view_modal"
+        />
+      </React.Fragment>
     </TableWrapper>
   );
-};
-
-ContentViewTable.propTypes = {
-  response: PropTypes.shape({
-    results: PropTypes.arrayOf(PropTypes.shape({})),
-  }),
-  status: PropTypes.string.isRequired,
-  error: PropTypes.oneOfType([
-    PropTypes.shape({}),
-    PropTypes.string,
-  ]),
-};
-
-ContentViewTable.defaultProps = {
-  error: null,
-  response: { results: [] },
 };
 
 export default ContentViewTable;
