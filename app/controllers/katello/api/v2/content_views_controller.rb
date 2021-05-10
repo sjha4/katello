@@ -94,6 +94,7 @@ module Katello
       param :label, String, :desc => N_("repo label"), :required => true
       param :rpm_filenames, Array, of: String, :desc => N_("list of rpm filename strings to include in published version"), :required => true
     end
+    param :environment_ids, Array, :desc => N_("Identifiers for Lifecycle Environment")
     def publish
       if params[:repos_units].present? && @content_view.composite?
         fail HttpErrors::BadRequest, _("Directly setting package lists on composite content views is not allowed. Please " \
@@ -107,7 +108,7 @@ module Katello
         fail HttpErrors::BadRequest, _("Both major and minor parameters have to be used to override a CV version")
       end
 
-      task = async_task(::Actions::Katello::ContentView::Publish, @content_view, params[:description],
+      task = async_task(::Actions::Katello::ContentView::Publish, @content_view, params[:description], params[:environment_ids],
                         :major => params[:major],
                         :minor => params[:minor],
                         :repos_units => params[:repos_units])

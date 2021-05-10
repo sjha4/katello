@@ -8,7 +8,7 @@ module Actions
         include ::Actions::ObservableAction
         attr_accessor :version
         # rubocop:disable Metrics/MethodLength,Metrics/AbcSize,Metrics/CyclomaticComplexity
-        def plan(content_view, description = "", options = {importing: false}) # rubocop:disable Metrics/PerceivedComplexity
+        def plan(content_view, description = "", environment_ids = nil, options = {importing: false}) # rubocop:disable Metrics/PerceivedComplexity
           action_subject(content_view)
 
           content_view.check_ready_to_publish!(importing: options[:importing])
@@ -77,7 +77,7 @@ module Actions
             plan_action(Candlepin::Environment::SetContent, content_view, library, content_view.content_view_environment(library)) unless options[:skip_promotion]
             plan_action(Katello::Foreman::ContentUpdate, library, content_view) unless options[:skip_promotion]
             plan_action(ContentView::ErrataMail, content_view, library) unless options[:skip_promotion]
-
+            plan_action(ContentView::Promote, version, find_environments(environment_ids)) if environment_ids && environment_ids.any?
             plan_self(history_id: history.id, content_view_id: content_view.id,
                       auto_publish_composite_ids: auto_publish_composite_ids(content_view),
                       content_view_version_name: version.name,
@@ -184,6 +184,11 @@ module Actions
           else
             content_view.create_new_version
           end
+        end
+
+        def find_environments(environment_ids)
+          return nil unless (environment_ids && environment_ids.any?)
+          ::Katello::KTEnvironment.where(:id => environment_ids)
         end
 
         def handle_import(version, path:, metadata:)
