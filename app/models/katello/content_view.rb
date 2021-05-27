@@ -107,6 +107,18 @@ module Katello
       joins(:content_view_versions => :repositories).where("katello_repositories.root_id" => root_repository.id).uniq
     end
 
+    def self.in_organization(org)
+      where(organization_id: org.id)
+    end
+
+    def component_of?(content_view)
+      Katello::ContentViewComponent.where(composite_content_view_id: content_view.id, content_view_id: id).any?
+    end
+
+    def component_content_view_version(content_view)
+      Katello::ContentViewComponent.where(composite_content_view_id: content_view.id, content_view_id: id)&.first
+    end
+
     def to_s
       name
     end
