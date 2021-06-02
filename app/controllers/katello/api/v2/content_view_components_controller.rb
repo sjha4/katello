@@ -39,11 +39,11 @@ module Katello
       kcc = Katello::ContentViewComponent.table_name
       join_query = <<-SQL
         LEFT OUTER JOIN #{kcc}
-        ON #{kc}.id = #{kcc}.composite_content_view_id
-        AND #{kcc}.content_view_id = #{@view.id}
+        ON #{kc}.id = #{kcc}.content_view_id
+        AND #{kcc}.composite_content_view_id = #{@view.id}
       SQL
       order_query = <<-SQL
-        CAST (#{kc}.id as BOOLEAN) ASC, #{kc}.name
+        CAST (#{kcc}.composite_content_view_id as BOOLEAN) ASC, #{kc}.name
       SQL
 
       query = Katello::ContentView.readable.in_organization(@organization)

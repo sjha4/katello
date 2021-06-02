@@ -119,7 +119,7 @@ export const getCVFilterRules = (filterId, params) => get({
 
 export const getContentViewComponents = (cvId, params) => {
   const apiParams = { ...params };
-  const apiUrl = `/content_views/${cvId}/content_view_components`;
+  const apiUrl = `/content_views/${cvId}/content_view_components/show_all`;
   return get({
     key: cvDetailsComponentKey(cvId),
     params: apiParams,

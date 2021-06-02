@@ -46,29 +46,43 @@ const ContentViewComponents = ({ cvId, details }) => {
   const buildRows = (results) => {
     const newRows = [];
     results.forEach((componentCV) => {
-      const { content_view: cv, content_view_version: cvVersion } = componentCV;
+      const { added_to_content_view: addedToCV, id, name, description, cv_versions: cvVersions } = componentCV;
+      const { content_view_version: cvVersion} = cvVersions || {};
       const { environments, repositories } = cvVersion || {};
-      const {
-        id,
-        name,
-        description,
-      } = cv;
 
       const cells = [
         { title: <Bullseye><ContentViewIcon composite={false} /></Bullseye> },
         { title: <Link to={urlBuilder('labs/content_views', '', id)}>{name}</Link> },
-        { title: cvVersion ? <ComponentVersion {...{ componentCV }} /> : 'Not yet published' },
-        { title: environments ? <ComponentEnvironments {...{ environments }} /> : 'Not yet published' },
+        { title: cvVersions ? <ComponentVersion componentCV={cvVersions} /> : 'N/A' },
+        { title: environments ? <ComponentEnvironments {...{ environments }} /> : 'N/A' },
         { title: <Link to={urlBuilder(`labs/content_views/${id}#repositories`, '')}>{ repositories ? repositories.length : 0 }</Link> },
         {
-          title: <AddedStatusLabel added />,
+          title: <AddedStatusLabel added={addedToCV} />,
         },
         { title: <TableText wrapModifier="truncate">{description || 'No description'}</TableText> },
       ];
-      newRows.push({ cells });
+      newRows.push({ componentCvId: id, cells });
     });
     return newRows;
   };
+
+  const actionResolver = (rowData, { _rowIndex }) => {
+    return [
+      {
+        title: 'Add',
+        onClick: (_event, rowId, rowInfo) => {
+          console.log(rowInfo.componentCvId, cvId);
+        },
+      },
+      {
+        title: 'Remove',
+        onClick: (_event, rowId, rowInfo) => {
+          console.log(rowInfo.componentCvId, cvId);
+        },
+      },
+    ];
+  };
+
 
   const emptyContentTitle = __(`No content views belong to ${label}`);
   const emptyContentBody = __('Please add some content views.');
@@ -96,6 +110,7 @@ const ContentViewComponents = ({ cvId, details }) => {
         emptySearchBody,
         searchQuery,
         updateSearchQuery,
+        actionResolver,
         error,
         status,
       }}

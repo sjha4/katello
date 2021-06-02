@@ -15,12 +15,12 @@ const ComponentVersion = ({ componentCV }) => {
     id,
     latest_version: latestVersion,
   } = cv;
-  const { version } = cvVersion;
+  const { version } = cvVersion || {};
   const latestDescription = __('Latest (automatically updates)');
   const manualVersionText = (latestVersion === version) ? __('Latest version') : __(`New version is available: Version ${latestVersion}`);
   return (
     <>
-      <Link to={urlBuilder('labs/content_views', '', id)}> Version {version}</Link>
+      {version ? <Link to={urlBuilder('labs/content_views', '', id)}> Version {version}</Link> : __(`Not yet published`)}
       <TextContent>
         <Text component={TextVariants.small}>{latest ? latestDescription : manualVersionText}</Text>
       </TextContent>
@@ -36,7 +36,7 @@ ComponentVersion.propTypes = {
     }),
     content_view: PropTypes.shape({
       id: PropTypes.number.isRequired,
-      latest_version: PropTypes.string.isRequired,
+      latest_version: PropTypes.string,
     }),
   }).isRequired,
 };
