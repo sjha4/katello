@@ -3,6 +3,7 @@ import { translate as __ } from 'foremanReact/common/I18n';
 const CONTENT_VIEWS_KEY = 'CONTENT_VIEWS';
 export const CREATE_CONTENT_VIEW_KEY = 'CONTENT_VIEW_CREATE';
 export const COPY_CONTENT_VIEW_KEY = 'CONTENT_VIEW_COPY';
+export const CREATE_CONTENT_VIEW_FILTER_KEY = 'CONTENT_VIEW_FILTER_CREATE';
 export const PUBLISH_CONTENT_VIEW_KEY = 'CONTENT_VIEW_PUBLISH';
 export const UPDATE_CONTENT_VIEW = 'UPDATE_CONTENT_VIEW';
 export const UPDATE_CONTENT_VIEW_SUCCESS = 'UPDATE_CONTENT_VIEW_SUCCESS';
@@ -32,5 +33,12 @@ export const NOT_ADDED = 'Not added';
 export const ALL_STATUSES = 'All';
 
 export const REPOSITORY_TYPES = 'REPOSITORY_TYPES';
+export const FILTER_TYPES = {
+  rpm: 'RPM (yum)',
+  package_group: 'Package group',
+  erratum: 'Errata (yum)',
+  docker: 'Container image tag (container)',
+  modulemd: 'Module stream',
+};
 
 export default CONTENT_VIEWS_KEY;
