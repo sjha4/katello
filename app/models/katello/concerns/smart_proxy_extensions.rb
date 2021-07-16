@@ -96,8 +96,13 @@ module Katello
               where(katello_capsule_lifecycle_environments: { lifecycle_environment_id: environment.id })
         end
 
+        def self.pulpcore_proxy_with_environment(environment)
+          unscoped.where(id: unscoped.select { |p| p.pulp_mirror? }.pluck(:id)).joins(:capsule_lifecycle_environments).
+              where(katello_capsule_lifecycle_environments: { lifecycle_environment_id: environment.id })
+        end
+
         def self.sync_needed?(environment)
-          Setting[:foreman_proxy_content_auto_sync] && unscoped.with_environment(environment).any?
+          Setting[:foreman_proxy_content_auto_sync] && (unscoped.with_environment(environment).any? || pulpcore_proxy_with_environment(environment).any?)
         end
       end
 
