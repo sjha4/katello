@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import useDeepCompareEffect from 'use-deep-compare-effect';
 import PropTypes from 'prop-types';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
@@ -17,9 +17,11 @@ import {
 } from '../ContentViewDetailSelectors';
 import AddedStatusLabel from '../../../../components/AddedStatusLabel';
 import getContentViewDetails, { addCVFilterRule, removeCVFilterRule, getCVFilterPackageGroups } from '../ContentViewDetailActions';
+import ContentViewRepositories from "../Repositories/ContentViewRepositories";
+import AffectedRepositoryTable from "./AffectedRepositories/AffectedRepositoryTable";
 
 
-const CVPackageGroupFilterContent = ({ cvId, filterId }) => {
+const CVPackageGroupFilterContent = ({ cvId, filterId, repositories, showAffectedRepos, setShowAffectedRepos }) => {
   const dispatch = useDispatch();
   const { results: filterResults } =
     useSelector(state => selectCVFilters(state, cvId), shallowEqual);
@@ -103,6 +105,14 @@ const CVPackageGroupFilterContent = ({ cvId, filterId }) => {
     // console.log(packageFilterIds);
     deselectAll();
   };
+
+  useEffect(() => {
+    if(showAffectedRepos) {
+      setActiveTabKey(1);
+    } else {
+      setActiveTabKey(0);
+    }
+  }, [showAffectedRepos]);
 
   useDeepCompareEffect(() => {
     const { results, ...meta } = response;
@@ -190,6 +200,11 @@ const CVPackageGroupFilterContent = ({ cvId, filterId }) => {
           </TableWrapper>
         </div>
       </Tab>
+      {(repositories.length || showAffectedRepos) && <Tab eventKey={1} title={<TabTitleText>{__('Affected Repositories')}</TabTitleText>}>
+        <div className="tab-body-with-spacing">
+          <AffectedRepositoryTable cvId={cvId} filterId={filterId} repoType={"yum"} setShowAffectedRepos={setShowAffectedRepos}/>
+        </div>
+      </Tab>}
     </Tabs>
   );
 };

@@ -4,13 +4,13 @@ import CVPackageGroupFilterContent from './CVPackageGroupFilterContent';
 import CVRpmFilterContent from './CVRpmFilterContent';
 
 const CVFilterDetailType = ({
-  cvId, filterId, inclusion, type,
+  cvId, filterId, inclusion, type, repositories, showAffectedRepos, setShowAffectedRepos,
 }) => {
   switch (type) {
     case 'package_group':
-      return <CVPackageGroupFilterContent cvId={cvId} filterId={filterId} />;
+      return <CVPackageGroupFilterContent cvId={cvId} filterId={filterId} repositories={repositories} showAffectedRepos={showAffectedRepos} setShowAffectedRepos={setShowAffectedRepos}/>;
     case 'rpm':
-      return <CVRpmFilterContent filterId={filterId} inclusion={inclusion} />;
+      return <CVRpmFilterContent filterId={filterId} inclusion={inclusion} repositories={repositories}/>;
     default:
       return null;
   }
