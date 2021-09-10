@@ -22,9 +22,7 @@
           "summary": null,
           "module_spec": "duck:0:20180730233102:deadbeef:noarch",
           "uuid": "/pulp/api/v3/content/rpm/modulemds/07f72044-11ad-4d22-bc17-751765c1afab/",
-          "filter_ids": [
-            
-          ]
+          "filter_ids": [ 1 ]
       },
       {
           "id": 12,
@@ -56,7 +54,6 @@
           "module_spec": "pteradactyl:1:20180730223407:deadbeef:noarch",
           "uuid": "/pulp/api/v3/content/rpm/modulemds/76496b87-51d0-41ef-8c01-1985d490fcc7/",
           "filter_ids": [
-            1
           ]
       }
   ]

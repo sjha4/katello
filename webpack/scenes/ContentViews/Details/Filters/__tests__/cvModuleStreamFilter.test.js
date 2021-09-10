@@ -19,24 +19,18 @@ const cvFilterFixtures = require('./contentViewFilters.fixtures.json');
 const cvFiltersPath = api.getApiUrl('/content_view_filters');
 const cvRefreshCallbackPath = api.getApiUrl('/content_views/2');
 
-const cvFilterDetailsPath = api.getApiUrl('/content_view_filters/1');
-const cvAddFilterRulePath = api.getApiUrl('/content_view_filters/1/rules');
-const cvRemoveFilterRulePath = api.getApiUrl('/content_view_filters/1/rules/1');
-const cvAllRepos = require('./cvAllRepos.fixtures.json');
-const cvFilterDetailsAffectedRepos = require('./cvFilterDetailModuleAffectedRepos.fixtures.json');
-
-const cvGetAllReposPath = api.getApiUrl('/content_views/2/repositories');
-const autoCompleteRepoURL = '/repositories/auto_complete_search';
-
-const cvBulkRemoveFilterRulesPath = api.getApiUrl('/content_view_filters/1/remove_filter_rules');
-const cvBulkAddFilterRulesPath = api.getApiUrl('/content_view_filters/1/add_filter_rules');
+const cvFilterDetailsPath = api.getApiUrl('/content_view_filters/8');
+const cvAddFilterRulePath = api.getApiUrl('/content_view_filters/8/rules');
+const cvRemoveFilterRulePath = api.getApiUrl('/content_view_filters/8/rules/1');
+const cvBulkRemoveFilterRulesPath = api.getApiUrl('/content_view_filters/8/remove_filter_rules');
+const cvBulkAddFilterRulesPath = api.getApiUrl('/content_view_filters/8/add_filter_rules');
 
 const moduleStreamsPath = api.getApiUrl('/module_streams');
 const autocompleteUrl = '/module_streams/auto_complete_search';
 const renderOptions = {
-  apiNamespace: cvFilterDetailsKey(1, 1),
+  apiNamespace: cvFilterDetailsKey(1, 8),
   routerParams: {
-    initialEntries: [{ hash: '#filters?subContentId=1', pathname: '/labs/content_views/2' }],
+    initialEntries: [{ hash: '#filters?subContentId=8', pathname: '/labs/content_views/2' }],
     initialIndex: 1,
   },
 };
@@ -154,6 +148,7 @@ test('Can add a filter rule', async (done) => {
 test('Can remove a filter rule', async (done) => {
   const { rules } = cvFilterDetails;
   const { name } = rules[0];
+  console.log(name);
 
   const cvFilterScope = nockInstance
     .get(cvFilterDetailsPath)
@@ -209,6 +204,7 @@ test('Can remove a filter rule', async (done) => {
 test('Can bulk remove filter rules', async (done) => {
   const { rules } = cvFilterDetails;
   const { name } = rules[0];
+  console.log(cvFilterDetails);
 
   const cvFilterScope = nockInstance
     .get(cvFilterDetailsPath)
@@ -278,7 +274,7 @@ test('Can bulk add filter rules', async (done) => {
     .get(cvFiltersPath)
     .query(true)
     .reply(200, cvFilterFixtures);
-  const bulkAddParams = { rules_params: [{ module_stream_ids: [14] }] };
+  const bulkAddParams = { rules_params: [{ module_stream_ids: [10] }] };
 
   const cvFiltersRuleBulkAddScope = nockInstance
     .put(cvBulkAddFilterRulesPath, bulkAddParams)
@@ -319,166 +315,5 @@ test('Can bulk add filter rules', async (done) => {
   assertNockRequest(cvFiltersRuleBulkAddScope);
   assertNockRequest(cvRequestCallbackScope);
 
-  assertNockRequest(moduleStreamsScope, done);
-});
-
-test('Can show affected repository tab and remove affected repos', async (done) => {
-  const { rules } = cvFilterDetailsAffectedRepos;
-  const { name } = rules[0];
-  const { results } = cvAllRepos;
-  const { name: repoName } = results[1];
-
-  const cvFilterScope = nockInstance
-    .get(cvFilterDetailsPath)
-    .times(2)
-    .query(true)
-    .reply(200, cvFilterDetailsAffectedRepos);
-
-  const cvFiltersScope = nockInstance
-    .get(cvFiltersPath)
-    .query(true)
-    .reply(200, cvFilterFixtures);
-
-  const cvAllReposScope = nockInstance
-    .get(cvGetAllReposPath)
-    .times(4)
-    .query(true)
-    .reply(200, cvAllRepos);
-
-  const removeRepoParams = { id: '1', repository_ids: [] };
-  const bulkRemoveReposScope = nockInstance
-    .put(cvFilterDetailsPath, removeRepoParams)
-    .reply(200, {});
-
-
-  const moduleStreamsScope = nockInstance
-    .get(moduleStreamsPath)
-    .times(2)
-    .query(true)
-    .reply(200, allModuleStreams);
-
-  const searchDelayScopeSecond = mockSetting(nockInstance, 'autosearch_delay', 500, 3);
-
-  const autoSearchScopeSecond = mockSetting(nockInstance, 'autosearch_while_typing', false, 3);
-
-  const autocompleteScope = mockAutocomplete(nockInstance, autocompleteUrl, true, [], 2);
-  const autocompleteScopeSecond = mockAutocomplete(nockInstance, autoCompleteRepoURL, true, [], 2);
-
-  const {
-    getAllByLabelText, getByLabelText, getByText, queryByText,
-  } =
-    renderWithRedux(withCVRoute(<ContentViewFilterDetails cvId={1} />), renderOptions);
-
-  // Nothing will show at first, page is loading
-  expect(queryByText(name)).toBeNull();
-
-  await patientlyWaitFor(() => {
-    expect(getByText(name)).toBeInTheDocument();
-    expect(getByText('Apply to subset of repositories')).toBeInTheDocument();
-  });
-  fireEvent.click(getByText('Affected Repositories').closest('button'));
-  await patientlyWaitFor(() => {
-    expect(getByText(repoName)).toBeInTheDocument();
-  });
-  expect(getByLabelText('add_repositories')).toHaveAttribute('aria-disabled', 'true');
-  expect(getAllByLabelText('Select all rows')[1]).toBeInTheDocument();
-  fireEvent.click(getAllByLabelText('Select all rows')[1]);
-  expect(getAllByLabelText('bulk_actions')[1]).toHaveAttribute('aria-expanded', 'false');
-  fireEvent.click(getAllByLabelText('bulk_actions')[1]);
-  expect(getByLabelText('bulk_remove')).toHaveAttribute('aria-disabled', 'false');
-  fireEvent.click(getByLabelText('bulk_remove'));
-  assertNockRequest(autocompleteScope);
-  assertNockRequest(cvFilterScope);
-  assertNockRequest(cvFiltersScope);
-  assertNockRequest(autocompleteScopeSecond);
-  assertNockRequest(searchDelayScopeSecond);
-  assertNockRequest(autoSearchScopeSecond);
-  assertNockRequest(cvAllReposScope);
-  assertNockRequest(bulkRemoveReposScope);
-  assertNockRequest(cvFilterScope);
-  assertNockRequest(cvAllReposScope);
-  assertNockRequest(moduleStreamsScope, done);
-});
-
-test('Can show affected repository tab on dropdown selection and add repos', async (done) => {
-  const { rules } = cvFilterDetails;
-  const { name } = rules[0];
-  const { results } = cvAllRepos;
-  const { name: repoName } = results[1];
-
-  const cvFilterScope = nockInstance
-    .get(cvFilterDetailsPath)
-    .times(2)
-    .query(true)
-    .reply(200, cvFilterDetails);
-
-  const cvFiltersScope = nockInstance
-    .get(cvFiltersPath)
-    .query(true)
-    .reply(200, cvFilterFixtures);
-
-  const cvAllReposScope = nockInstance
-    .get(cvGetAllReposPath)
-    .times(4)
-    .query(true)
-    .reply(200, cvAllRepos);
-
-  const addRepoParams = { id: '1', repository_ids: [5, 9] };
-  const bulkAddReposScope = nockInstance
-    .put(cvFilterDetailsPath, addRepoParams)
-    .reply(200, {});
-
-
-  const moduleStreamsScope = nockInstance
-    .get(moduleStreamsPath)
-    .times(2)
-    .query(true)
-    .reply(200, allModuleStreams);
-
-  const searchDelayScopeSecond = mockSetting(nockInstance, 'autosearch_delay', 500, 3);
-
-  const autoSearchScopeSecond = mockSetting(nockInstance, 'autosearch_while_typing', false, 3);
-
-  const autocompleteScope = mockAutocomplete(nockInstance, autocompleteUrl, true, [], 2);
-  const autocompleteScopeSecond = mockAutocomplete(nockInstance, autoCompleteRepoURL, true, [], 2);
-
-  const {
-    getAllByLabelText, getByLabelText, getAllByText, getByText, queryByText,
-  } =
-    renderWithRedux(withCVRoute(<ContentViewFilterDetails cvId={1} />), renderOptions);
-
-  // Nothing will show at first, page is loading
-  expect(queryByText(name)).toBeNull();
-
-  await patientlyWaitFor(() => {
-    expect(getByText(name)).toBeInTheDocument();
-    expect(getByText('Apply to all repositories in the CV')).toBeInTheDocument();
-    expect(getAllByText('Apply to all repositories in the CV')[0].closest('button'))
-      .toHaveAttribute('aria-expanded', 'false');
-  });
-  fireEvent.click(getByText('Apply to all repositories in the CV').closest('button'));
-  await patientlyWaitFor(() => expect(getAllByText('Apply to all repositories in the CV')[0].closest('button'))
-    .toHaveAttribute('aria-expanded', 'true'));
-  fireEvent.click(getByText('Apply to subset of repositories').closest('button'));
-
-  await patientlyWaitFor(() => {
-    expect(getByText(repoName)).toBeInTheDocument();
-  });
-  expect(getByLabelText('add_repositories')).toHaveAttribute('aria-disabled', 'true');
-  expect(getAllByLabelText('Select all rows')[1]).toBeInTheDocument();
-  fireEvent.click(getAllByLabelText('Select all rows')[1]);
-  expect(getByLabelText('add_repositories')).toHaveAttribute('aria-disabled', 'false');
-  fireEvent.click(getByLabelText('add_repositories'));
-
-  assertNockRequest(autocompleteScope);
-  assertNockRequest(cvFilterScope);
-  assertNockRequest(cvFiltersScope);
-  assertNockRequest(autocompleteScopeSecond);
-  assertNockRequest(searchDelayScopeSecond);
-  assertNockRequest(autoSearchScopeSecond);
-  assertNockRequest(cvAllReposScope);
-  assertNockRequest(bulkAddReposScope);
-  assertNockRequest(cvFilterScope);
-  assertNockRequest(cvAllReposScope);
   assertNockRequest(moduleStreamsScope, done);
 });

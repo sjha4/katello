@@ -92,6 +92,8 @@ const CVModuleStreamFilterContent = ({
         ...rest,
         name,
       });
+
+      console.log(id, filterRules?.find(({ module_stream_id }) => module_stream_id === id)?.id)
     });
 
     return newRows.sort(({ added: addedA }, { added: addedB }) => {
@@ -114,6 +116,7 @@ const CVModuleStreamFilterContent = ({
     const moduleStreamRuleIds =
       rows.filter(({ selected, added }) =>
         selected && added).map(({ moduleStreamRuleId }) => moduleStreamRuleId);
+    console.log(moduleStreamRuleIds);
     dispatch(deleteContentViewFilterRules(filterId, moduleStreamRuleIds, () =>
       dispatch(getContentViewDetails(cvId))));
     deselectAll();
@@ -150,6 +153,7 @@ const CVModuleStreamFilterContent = ({
       title: __('Remove'),
       isDisabled: !added,
       onClick: (_event, _rowId, { moduleStreamRuleId }) => {
+        console.log(moduleStreamRuleId);
         dispatch(removeCVFilterRule(filterId, moduleStreamRuleId, () =>
           dispatch(getContentViewDetails(cvId))));
       },
