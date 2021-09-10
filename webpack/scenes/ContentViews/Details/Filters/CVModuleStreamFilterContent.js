@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import useDeepCompareEffect from 'use-deep-compare-effect';
 import PropTypes from 'prop-types';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
@@ -13,7 +13,7 @@ import {
   selectCVFilterModuleStream,
   selectCVFilterModuleStreamStatus,
   selectCVFilterModuleStreamError,
-  selectCVFilters, selectCVFilterDetails,
+  selectCVFilters, selectCVFilterDetails, selectCVFiltersStatus,
 } from '../ContentViewDetailSelectors';
 import getContentViewDetails, {
   addCVFilterRule, removeCVFilterRule, getCVFilterModuleStreams,
@@ -32,6 +32,8 @@ const CVModuleStreamFilterContent = ({
     selectCVFilterModuleStream(state, cvId, filterId), shallowEqual);
   const status = useSelector(state =>
     selectCVFilterModuleStreamStatus(state, cvId, filterId), shallowEqual);
+  const filterLoad = useSelector(state =>
+    selectCVFiltersStatus(state, cvId), shallowEqual);
   const error = useSelector(state =>
     selectCVFilterModuleStreamError(state, cvId, filterId), shallowEqual);
   const filterDetails = useSelector(state =>
@@ -41,6 +43,7 @@ const CVModuleStreamFilterContent = ({
   const [metadata, setMetadata] = useState({});
   const [searchQuery, updateSearchQuery] = useState('');
   const [activeTabKey, setActiveTabKey] = useState(0);
+  const filterLoaded = filterLoad === 'RESOLVED';
   const loading = status === STATUS.PENDING;
   const [bulkActionOpen, setBulkActionOpen] = useState(false);
   const deselectAll = () => setRows(rows.map(row => ({ ...row, selected: false })));
@@ -84,7 +87,7 @@ const CVModuleStreamFilterContent = ({
       newRows.push({
         cells,
         module_stream_id: id,
-        packagefilterId: filterRules?.find(({ id }) => id === id)?.id, // eslint-disable-line max-len, no-shadow, no-self-compare
+        moduleStreamRuleId: filterRules?.find(({ module_stream_id }) => module_stream_id === id)?.id, // eslint-disable-line max-len, no-shadow, no-self-compare
         added,
         ...rest,
         name,
@@ -108,23 +111,31 @@ const CVModuleStreamFilterContent = ({
 
   const bulkRemove = () => {
     setBulkActionOpen(false);
-    const packageFilterIds =
+    const moduleStreamRuleIds =
       rows.filter(({ selected, added }) =>
-        selected && added).map(({ packagefilterId }) => packagefilterId);
-    dispatch(deleteContentViewFilterRules(filterId, packageFilterIds, () =>
+        selected && added).map(({ moduleStreamRuleId }) => moduleStreamRuleId);
+    dispatch(deleteContentViewFilterRules(filterId, moduleStreamRuleIds, () =>
       dispatch(getContentViewDetails(cvId))));
     deselectAll();
   };
+
+  useEffect(() => {
+    if (!repositories.length && showAffectedRepos) {
+      setActiveTabKey(1);
+    } else {
+      setActiveTabKey(0);
+    }
+  }, [showAffectedRepos, repositories.length]);
 
   useDeepCompareEffect(() => {
     const { results, ...meta } = response;
     setMetadata(meta);
 
-    if (!loading && results) {
+    if (!loading && results && filterLoaded) {
       const newRows = buildRows(results);
       setRows(newRows);
     }
-  }, [response, loading, buildRows]);
+  }, [response, loading, filterLoaded, buildRows]);
 
   const actionResolver = ({ added }) => [
     {
@@ -138,8 +149,8 @@ const CVModuleStreamFilterContent = ({
     {
       title: __('Remove'),
       isDisabled: !added,
-      onClick: (_event, _rowId, { packagefilterId }) => {
-        dispatch(removeCVFilterRule(filterId, packagefilterId, () =>
+      onClick: (_event, _rowId, { moduleStreamRuleId }) => {
+        dispatch(removeCVFilterRule(filterId, moduleStreamRuleId, () =>
           dispatch(getContentViewDetails(cvId))));
       },
     },
