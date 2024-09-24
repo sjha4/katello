@@ -18,7 +18,7 @@
              required/>
     </div>
 
-    <div bst-form-group label="{{ 'Registry to Discover' | translate }}"  ng-if="discovery.contentType === 'docker'">
+    <div bst-form-group label="{{ 'Registry to Discover' | translate }}"  ng-if="discovery.contentType === 'docker' || discovery.contentType === 'flatpak'">
       <select required
               class="form-control"
               id="registry_type"

@@ -1,10 +1,14 @@
 require 'uri'
+require 'cgi'
 
 module Katello
   class RepoDiscovery
     include Katello::Util::HttpProxy
 
     def self.class_for(content_type)
+      if content_type == 'flatpak'
+        return Katello::Resources::Discovery::Flatpak
+      end
       repo_discovery_class = RepositoryTypeManager.find_repository_type(content_type)&.repo_discovery_class
       fail _("Content type does not support repo discovery") unless repo_discovery_class
       repo_discovery_class
