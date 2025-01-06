@@ -71,7 +71,7 @@ const hostsIndexColumnExtensions = [
             >
               <FontAwesomeImageModeIcon title={__('Image mode')} />
             </Popover>
-            : <span style={{ color: 'var(--pf-global--palette--black-600)' }}><RepoIcon type="yum" customTooltip={__('Package mode')} /></span>
+            : <span style={{ color: 'var(--pf-v5-global--palette--black-600)' }}><RepoIcon type="yum" customTooltip={__('Package mode')} /></span>
           }
         </span>
       );
