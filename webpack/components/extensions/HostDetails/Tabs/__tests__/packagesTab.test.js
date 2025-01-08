@@ -80,7 +80,7 @@ test('Can call API for packages and show on screen on page load', async (done) =
   // Assert request was made and completed, see helper function
   assertNockRequest(autocompleteScope);
   assertNockRequest(scope);
-  done(); // Pass jest callback to confirm test is done
+  act(done);
 });
 
 test('Can handle no packages being present', async (done) => {
@@ -107,7 +107,7 @@ test('Can handle no packages being present', async (done) => {
   // Assert request was made and completed, see helper function
   assertNockRequest(autocompleteScope);
   assertNockRequest(scope);
-  done(); // Pass jest callback to confirm test is done
+  act(done);
 });
 
 test('Can filter by package status', async (done) => {
@@ -137,13 +137,9 @@ test('Can filter by package status', async (done) => {
 
   const statusDropdown = queryByText('Status', { ignore: 'th' });
   expect(statusDropdown).toBeInTheDocument();
-  await act(async () => {
-    fireEvent.click(statusDropdown);
-  });
+  fireEvent.click(statusDropdown);
   const upgradable = getByRole('option', { name: 'select Upgradable' });
-  await act(async () => {
-    fireEvent.click(upgradable);
-  });
+  fireEvent.click(upgradable);
   await patientlyWaitFor(() => {
     expect(queryByText('coreutils')).toBeInTheDocument();
     expect(queryByText('acl')).not.toBeInTheDocument();
@@ -152,7 +148,7 @@ test('Can filter by package status', async (done) => {
   assertNockRequest(autocompleteScope);
   assertNockRequest(scope);
   assertNockRequest(scope2);
-  done(); // Pass jest callback to confirm test is done
+  act(done);
 });
 
 test('Can upgrade a package via remote execution', async (done) => {
@@ -191,24 +187,18 @@ test('Can upgrade a package via remote execution', async (done) => {
 
   const statusDropdown = getByText('Status', { ignore: 'th' });
   expect(statusDropdown).toBeInTheDocument();
-  await act(async () => {
-    fireEvent.click(statusDropdown);
-  });
+  fireEvent.click(statusDropdown);
   const upgradable = getByRole('option', { name: 'select Upgradable' });
-  await act(async () => {
-    fireEvent.click(upgradable);
-  });
+  fireEvent.click(upgradable);
   await patientlyWaitFor(() => {
     expect(getByText('coreutils')).toBeInTheDocument();
   });
 
   const kebabDropdown = getByLabelText('Kebab toggle');
-  await act(async () => {
-    kebabDropdown.click();
-  });
+  kebabDropdown.click();
 
+  await patientlyWaitFor(() => expect(getByText('Upgrade via remote execution')).toBeInTheDocument());
   const rexAction = getByText('Upgrade via remote execution');
-  await patientlyWaitFor(() => expect(rexAction).toBeInTheDocument());
   await act(async () => {
     fireEvent.click(rexAction);
   });
@@ -216,8 +206,8 @@ test('Can upgrade a package via remote execution', async (done) => {
   assertNockRequest(autocompleteScope);
   assertNockRequest(scope);
   assertNockRequest(statusScope);
-  assertNockRequest(upgradeScope);
-  done();
+  assertNockRequest(upgradeScope, done);
+  act(done);
 });
 
 test('Can upgrade a package via customized remote execution', async (done) => {
@@ -244,21 +234,15 @@ test('Can upgrade a package via customized remote execution', async (done) => {
 
   const statusDropdown = getByText('Status', { ignore: 'th' });
   expect(statusDropdown).toBeInTheDocument();
-  await act(async () => {
-    fireEvent.click(statusDropdown);
-  });
+  fireEvent.click(statusDropdown);
   const upgradable = getByRole('option', { name: 'select Upgradable' });
-  await act(async () => {
-    fireEvent.click(upgradable);
-  });
+  fireEvent.click(upgradable);
   await patientlyWaitFor(() => {
     expect(getByText('coreutils')).toBeInTheDocument();
   });
 
   const kebabDropdown = getByLabelText('Kebab toggle');
-  await act(async () => {
-    kebabDropdown.click();
-  });
+  kebabDropdown.click();
 
   const rexAction = getByText('Upgrade via customized remote execution');
   const feature = REX_FEATURES.KATELLO_PACKAGE_UPDATE;
@@ -269,14 +253,14 @@ test('Can upgrade a package via customized remote execution', async (done) => {
     'href',
     `/job_invocations/new?feature=${feature}&search=name%20%5E%20(${hostname})&inputs%5Bpackage%5D=${packageName}`,
   );
+
   await act(async () => {
     fireEvent.click(rexAction);
   });
-
   assertNockRequest(autocompleteScope);
   assertNockRequest(scope);
-  assertNockRequest(statusScope);
-  done();
+  assertNockRequest(statusScope, done);
+  act(done);
 });
 
 test('Can remove a package via remote execution', async (done) => {
@@ -307,16 +291,17 @@ test('Can remove a package via remote execution', async (done) => {
 
   await patientlyWaitFor(() => expect(getAllByText(firstPackage.name)[0]).toBeInTheDocument());
 
-  const kebabDropdown = getByLabelText('Actions');
-  kebabDropdown.click();
-
+  const kebabDropdown = getByLabelText('Kebab toggle');
+  fireEvent.click(kebabDropdown);
+  await patientlyWaitFor(() => expect(getByText('Remove')).toBeInTheDocument());
   const rexAction = getByText('Remove');
-  await patientlyWaitFor(() => expect(rexAction).toBeInTheDocument());
-  fireEvent.click(rexAction);
-
+  await act(async () => {
+    fireEvent.click(rexAction);
+  });
   assertNockRequest(autocompleteScope);
   assertNockRequest(scope);
   assertNockRequest(removeScope, done);
+  act(done);
 });
 
 test('Can bulk remove a package via remote execution', async (done) => {
@@ -360,11 +345,14 @@ test('Can bulk remove a package via remote execution', async (done) => {
 
   const rexAction = getByText('Remove');
   await patientlyWaitFor(() => expect(rexAction).toBeInTheDocument());
-  fireEvent.click(rexAction);
+  await act(async () => {
+    fireEvent.click(rexAction);
+  });
 
   assertNockRequest(autocompleteScope);
   assertNockRequest(scope);
   assertNockRequest(removeScope, done);
+  act(done);
 });
 
 test('Can bulk upgrade via remote execution', async (done) => {
@@ -404,9 +392,7 @@ test('Can bulk upgrade via remote execution', async (done) => {
   expect(getByLabelText('Select row 1').checked).toEqual(true);
 
   const upgradeDropdown = getAllByRole('button', { name: 'Select' })[1];
-  await act(async () => {
-    fireEvent.click(upgradeDropdown);
-  });
+  fireEvent.click(upgradeDropdown);
   const rexAction = getByLabelText('bulk_upgrade_rex');
   expect(rexAction).toBeInTheDocument();
   await act(async () => {
@@ -416,7 +402,7 @@ test('Can bulk upgrade via remote execution', async (done) => {
   assertNockRequest(autocompleteScope);
   assertNockRequest(scope);
   assertNockRequest(upgradeScope);
-  done();
+  act(done);
 });
 
 test('Can bulk upgrade via customized remote execution', async (done) => {
@@ -447,9 +433,7 @@ test('Can bulk upgrade via customized remote execution', async (done) => {
   expect(getByLabelText('Select row 1').checked).toEqual(true);
 
   const upgradeDropdown = getAllByRole('button', { name: 'Select' })[1];
-  await act(async () => {
-    fireEvent.click(upgradeDropdown);
-  });
+  fireEvent.click(upgradeDropdown);
   expect(upgradeDropdown).not.toHaveAttribute('disabled');
 
   const rexAction = getByLabelText('bulk_upgrade_customized_rex');
@@ -458,7 +442,7 @@ test('Can bulk upgrade via customized remote execution', async (done) => {
 
   assertNockRequest(autocompleteScope);
   assertNockRequest(scope);
-  done();
+  act(done);
 });
 
 test('Upgrade is disabled when there are non-upgradable packages selected', async (done) => {
@@ -489,7 +473,7 @@ test('Upgrade is disabled when there are non-upgradable packages selected', asyn
 
   assertNockRequest(autocompleteScope);
   assertNockRequest(scope);
-  done();
+  act(done);
 });
 
 test('Remove is disabled when in select all mode', async (done) => {
@@ -516,7 +500,7 @@ test('Remove is disabled when in select all mode', async (done) => {
 
   assertNockRequest(autocompleteScope);
   assertNockRequest(scope);
-  done();
+  act(done);
 });
 
 test('Sets initial search query from url params', async (done) => {
@@ -538,6 +522,6 @@ test('Sets initial search query from url params', async (done) => {
 
   assertNockRequest(autocompleteScope);
   assertNockRequest(scope);
-  done(); // Pass jest callback to confirm test is done
+  act(done);
 });
 

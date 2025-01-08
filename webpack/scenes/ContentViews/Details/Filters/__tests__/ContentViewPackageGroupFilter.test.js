@@ -1,10 +1,10 @@
 import React from 'react';
-import { renderWithRedux, patientlyWaitFor, fireEvent } from 'react-testing-lib-wrapper';
+import { renderWithRedux, patientlyWaitFor, fireEvent, act } from 'react-testing-lib-wrapper';
 import { Route } from 'react-router-dom';
 
 import ContentViewFilterDetails from '../ContentViewFilterDetails';
 import { ADDED, cvFilterDetailsKey, NOT_ADDED } from '../../../ContentViewsConstants';
-import {
+import nock, {
   nockInstance,
   assertNockRequest,
   mockAutocomplete,
@@ -46,6 +46,12 @@ const renderOptions = {
 
 const withCVRoute = component => <Route path="/content_views/:id([0-9]+)#/filters/:filterId([0-9]+)">{component}</Route>;
 
+afterEach(() => {
+  nock.cleanAll(); // Removes all interceptors
+  nock.restore(); // Restores HTTP to normal behavior
+});
+
+
 test('Can enable and disable add filter button', async (done) => {
   const autocompleteScope = mockAutocomplete(nockInstance, autocompleteUrl, autocompleteQuery);
   const { name: cvFilterName } = cvFilterDetails;
@@ -84,8 +90,8 @@ test('Can enable and disable add filter button', async (done) => {
   assertNockRequest(autocompleteScope);
   assertNockRequest(cvFilterScope);
   assertNockRequest(cvFiltersScope);
-  assertNockRequest(packageGroupsScope);
-  done();
+  assertNockRequest(packageGroupsScope, done);
+  act(done);
 });
 
 test('Can remove a filter rule', async (done) => {
@@ -142,8 +148,8 @@ test('Can remove a filter rule', async (done) => {
   assertNockRequest(cvFiltersRuleScope);
   assertNockRequest(cvRequestCallbackScope);
 
-  assertNockRequest(packageGroupsScope);
-  done();
+  assertNockRequest(packageGroupsScope, done);
+  act(done);
 });
 
 test('Can add a filter rule', async (done) => {
@@ -202,8 +208,8 @@ test('Can add a filter rule', async (done) => {
   assertNockRequest(cvFiltersRuleScope);
   assertNockRequest(cvRequestCallbackScope);
 
-  assertNockRequest(packageGroupsScope);
-  done();
+  assertNockRequest(packageGroupsScope, done);
+  act(done);
 });
 
 test('Can bulk remove filter rules', async (done) => {
@@ -265,8 +271,8 @@ test('Can bulk remove filter rules', async (done) => {
   assertNockRequest(cvFiltersRuleBulkDeleteScope);
   assertNockRequest(cvRequestCallbackScope);
 
-  assertNockRequest(packageGroupsScope);
-  done();
+  assertNockRequest(packageGroupsScope, done);
+  act(done);
 });
 
 test('Can bulk add filter rules', async (done) => {
@@ -324,8 +330,65 @@ test('Can bulk add filter rules', async (done) => {
   assertNockRequest(cvFiltersScope);
   assertNockRequest(cvFiltersRuleBulkAddScope);
   assertNockRequest(cvRequestCallbackScope);
-  assertNockRequest(packageGroupsScope);
-  done();
+  assertNockRequest(packageGroupsScope, done);
+  act(done);
+});
+
+test('Can filter by added/not added rules', async (done) => {
+  const autocompleteScope = mockAutocomplete(nockInstance, autocompleteUrl, autocompleteQuery);
+  const { rules } = cvFilterDetails;
+  const { name } = rules[0];
+
+  const cvFilterScope = nockInstance
+    .get(cvFilterDetailsPath)
+    .query(true)
+    .reply(200, cvFilterDetails);
+
+  const cvFiltersScope = nockInstance
+    .get(cvFiltersPath)
+    .query(true)
+    .reply(200, cvFilterFixtures);
+
+  const packageGroupsScope = nockInstance
+    .get(packageGroupsPath)
+    .query(true)
+    .times(3) // For first call (All), Added, and Not Added
+    .reply(200, allPackageGroups);
+
+  const {
+    getByText, queryByText, getByTestId, getByLabelText,
+  } = renderWithRedux(withCVRoute(<ContentViewFilterDetails
+    cvId={1}
+    details={details}
+  />), renderOptions);
+
+  // Nothing will show at first, page is loading
+  expect(queryByText(name)).toBeNull();
+
+  await patientlyWaitFor(() => {
+    expect(getByText(name)).toBeInTheDocument();
+    expect(getByTestId('allAddedNotAdded')).toBeInTheDocument();
+  });
+  fireEvent.click(getByTestId('allAddedNotAdded')?.childNodes[0]?.childNodes[0]);
+  await patientlyWaitFor(() => {
+    expect(getByLabelText(ADDED)).toBeInTheDocument();
+  });
+  fireEvent.click(getByLabelText(ADDED));
+  await patientlyWaitFor(() => {
+    expect(getByText(name)).toBeInTheDocument();
+    expect(getByTestId('allAddedNotAdded')).toBeInTheDocument();
+  });
+  fireEvent.click(getByTestId('allAddedNotAdded')?.childNodes[0]?.childNodes[0]);
+  await patientlyWaitFor(() => {
+    expect(getByLabelText(NOT_ADDED)).toBeInTheDocument();
+  });
+  fireEvent.click(getByLabelText(NOT_ADDED));
+
+  assertNockRequest(autocompleteScope);
+  assertNockRequest(cvFilterScope);
+  assertNockRequest(cvFiltersScope);
+  assertNockRequest(packageGroupsScope, done);
+  act(done);
 });
 
 test('Can show affected repository tab on dropdown selection and add repos', async (done) => {
@@ -414,6 +477,9 @@ test('Can show affected repository tab on dropdown selection and add repos', asy
   fireEvent.click(getAllByLabelText('Select all rows')[1]);
   expect(getByLabelText('add_repositories')).toHaveAttribute('aria-disabled', 'false');
   fireEvent.click(getByLabelText('add_repositories'));
+  await patientlyWaitFor(() => {
+    expect(getByLabelText('add_repositories')).toHaveAttribute('aria-disabled', 'true');
+  });
 
   assertNockRequest(cvFilterScope);
   assertNockRequest(cvFiltersScope);
@@ -423,8 +489,8 @@ test('Can show affected repository tab on dropdown selection and add repos', asy
   assertNockRequest(cvAllReposScope);
   assertNockRequest(autocompleteScope);
   assertNockRequest(autocompleteScopeRepo);
-  assertNockRequest(packageGroupsScope);
-  done();
+  assertNockRequest(packageGroupsScope, done);
+  act(done);
 });
 
 test('Can show affected repository tab and remove affected repos', async (done) => {
@@ -516,66 +582,6 @@ test('Can show affected repository tab and remove affected repos', async (done) 
   assertNockRequest(bulkRemoveReposScope);
   assertNockRequest(cvFilterScope);
   assertNockRequest(cvAllReposScope);
-  assertNockRequest(packageGroupsScope);
-  done();
-});
-
-test('Can filter by added/not added rules', async (done) => {
-  const autocompleteScope = mockAutocomplete(nockInstance, autocompleteUrl, autocompleteQuery);
-  const { rules } = cvFilterDetails;
-  const { name } = rules[0];
-
-  const cvFilterScope = nockInstance
-    .get(cvFilterDetailsPath)
-    .query(true)
-    .reply(200, cvFilterDetails);
-
-  const cvFiltersScope = nockInstance
-    .get(cvFiltersPath)
-    .query(true)
-    .reply(200, cvFilterFixtures);
-
-  const packageGroupsScope = nockInstance
-    .get(packageGroupsPath)
-    .query(true)
-    .times(3) // For first call (All), Added, and Not Added
-    .reply(200, allPackageGroups);
-
-  const {
-    getByText, queryByText, getByTestId, getByLabelText,
-  } = renderWithRedux(withCVRoute(<ContentViewFilterDetails
-    cvId={1}
-    details={details}
-  />), renderOptions);
-
-  // Nothing will show at first, page is loading
-  expect(queryByText(name)).toBeNull();
-
-  await patientlyWaitFor(() => {
-    expect(getByText(name)).toBeInTheDocument();
-    expect(getByTestId('allAddedNotAdded')).toBeInTheDocument();
-    fireEvent.click(getByTestId('allAddedNotAdded')?.childNodes[0]?.childNodes[0]);
-  });
-
-  await patientlyWaitFor(() => {
-    expect(getByLabelText(ADDED)).toBeInTheDocument();
-    getByLabelText(ADDED).click();
-  });
-
-  await patientlyWaitFor(() => {
-    expect(getByText(name)).toBeInTheDocument();
-    expect(getByTestId('allAddedNotAdded')).toBeInTheDocument();
-    fireEvent.click(getByTestId('allAddedNotAdded')?.childNodes[0]?.childNodes[0]);
-  });
-
-  await patientlyWaitFor(() => {
-    expect(getByLabelText(NOT_ADDED)).toBeInTheDocument();
-    getByLabelText(NOT_ADDED).click();
-  });
-
-  assertNockRequest(autocompleteScope);
-  assertNockRequest(cvFilterScope);
-  assertNockRequest(cvFiltersScope);
-  assertNockRequest(packageGroupsScope);
-  done();
+  assertNockRequest(packageGroupsScope, done);
+  act(done);
 });

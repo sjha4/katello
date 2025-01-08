@@ -33,6 +33,38 @@ beforeEach(() => {
   [lastFilter] = results.slice(-1);
 });
 
+test('Shows call-to-action button when there are no filters', async (done) => {
+  const repoTypesResponse = [{ name: 'deb' }, { name: 'docker' }, { name: 'file' }, { name: 'ostree' }, { name: 'yum' }];
+  const repoTypeScope = nockInstance
+    .get(api.getApiUrl('/repositories/repository_types'))
+    .query(true)
+    .reply(200, repoTypesResponse);
+
+  const autocompleteScope = mockAutocomplete(nockInstance, autocompleteUrl);
+
+  const scope = nockInstance
+    .get(cvFilters)
+    .query(true)
+    .reply(200, emptyContentViewFiltersData);
+  const { queryByLabelText } =
+   renderWithRedux(withCVRoute(<ContentViewFilters cvId={1} details={details} />), renderOptions);
+
+  expect(queryByLabelText('create_filter_empty_state')).toBeNull();
+  await patientlyWaitFor(() => {
+    expect(queryByLabelText('create_filter_empty_state')).toBeInTheDocument();
+  });
+  await act(async () => {
+    fireEvent.click(queryByLabelText('create_filter_empty_state'));
+  });
+  await patientlyWaitFor(() => {
+    expect(queryByLabelText('create_filter')).toBeInTheDocument();
+  });
+  assertNockRequest(autocompleteScope);
+  assertNockRequest(repoTypeScope);
+  assertNockRequest(scope, done);
+  act(done);
+});
+
 test('Can call API and show filters on page load', async (done) => {
   const { name, description } = firstFilter;
   const autocompleteScope = mockAutocomplete(nockInstance, autocompleteUrl);
@@ -54,8 +86,8 @@ test('Can call API and show filters on page load', async (done) => {
   });
 
   assertNockRequest(autocompleteScope);
-  assertNockRequest(scope);
-  done();
+  assertNockRequest(scope, done);
+  act(done);
 });
 
 test('Can search for filter', async (done) => {
@@ -116,8 +148,8 @@ test('Can search for filter', async (done) => {
 
   assertNockRequest(autocompleteScope);
   assertNockRequest(initialScope);
-  assertNockRequest(withSearchScope);
-  done();
+  assertNockRequest(withSearchScope, done);
+  act(done);
 });
 
 test('Can remove a filter', async (done) => {
@@ -160,8 +192,8 @@ test('Can remove a filter', async (done) => {
   assertNockRequest(autocompleteScope);
   assertNockRequest(getContentViewScope);
   assertNockRequest(removeFilterScope);
-  assertNockRequest(callbackGetContentViewScope);
-  done();
+  assertNockRequest(callbackGetContentViewScope, done);
+  act(done);
 });
 
 test('Can remove multiple filters', async (done) => {
@@ -203,38 +235,6 @@ test('Can remove multiple filters', async (done) => {
   assertNockRequest(autocompleteScope);
   assertNockRequest(getContentViewScope);
   assertNockRequest(removeFilterScope);
-  assertNockRequest(callbackGetContentViewScope);
-  done();
-});
-
-test('Shows call-to-action button when there are no filters', async (done) => {
-  const repoTypesResponse = [{ name: 'deb' }, { name: 'docker' }, { name: 'file' }, { name: 'ostree' }, { name: 'yum' }];
-  const repoTypeScope = nockInstance
-    .get(api.getApiUrl('/repositories/repository_types'))
-    .query(true)
-    .reply(200, repoTypesResponse);
-
-  const autocompleteScope = mockAutocomplete(nockInstance, autocompleteUrl);
-
-  const scope = nockInstance
-    .get(cvFilters)
-    .query(true)
-    .reply(200, emptyContentViewFiltersData);
-  const { queryByLabelText } =
-    renderWithRedux(withCVRoute(<ContentViewFilters cvId={1} details={details} />), renderOptions);
-
-  expect(queryByLabelText('create_filter_empty_state')).toBeNull();
-  await patientlyWaitFor(() => {
-    expect(queryByLabelText('create_filter_empty_state')).toBeInTheDocument();
-  });
-  await act(async () => {
-    fireEvent.click(queryByLabelText('create_filter_empty_state'));
-  });
-  await patientlyWaitFor(() => {
-    expect(queryByLabelText('create_filter')).toBeInTheDocument();
-  });
-  assertNockRequest(autocompleteScope);
-  assertNockRequest(repoTypeScope);
-  assertNockRequest(scope);
-  done();
+  assertNockRequest(callbackGetContentViewScope, done);
+  act(done);
 });
