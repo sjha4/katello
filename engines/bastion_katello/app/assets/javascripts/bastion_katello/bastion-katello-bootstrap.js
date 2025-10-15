@@ -31,7 +31,7 @@ var BASTION_MODULES = [
   'Bastion.products',
   'Bastion.repositories',
   'Bastion.subscriptions',
-  'Bastion.sync-plans',
+  // 'Bastion.sync-plans', // DISABLED - Migrated to React (see webpack/scenes/SyncPlans/)
   'Bastion.http-proxies',
   'Bastion.host-collections',
   'Bastion.content-hosts',

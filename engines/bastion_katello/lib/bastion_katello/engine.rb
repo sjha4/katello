@@ -26,7 +26,6 @@ module BastionKatello
           packages
           lifecycle_environments
           products
-          sync_plans
           host_collections
           katello_tasks
           select_organization

@@ -18,6 +18,8 @@ import AlternateContentSource from '../../scenes/AlternateContentSources';
 import BootedContainerImages from '../../scenes/BootedContainerImages';
 import FlatpakRemotes from '../../scenes/FlatpakRemotes';
 import FlatpakRemoteDetails from '../../scenes/FlatpakRemotes/Details';
+import SyncPlans from '../../scenes/SyncPlans';
+import SyncPlanDetails from '../../scenes/SyncPlans/Details';
 
 // eslint-disable-next-line import/prefer-default-export
 export const links = [
@@ -99,6 +101,15 @@ export const links = [
   {
     path: 'flatpak_remotes/:id([0-9]+)',
     component: WithOrganization(withHeader(FlatpakRemoteDetails, { title: __('Flatpak Remote Details') })),
+    exact: false,
+  },
+  {
+    path: 'sync_plans',
+    component: WithOrganization(withHeader(SyncPlans, { title: __('Sync Plans') })),
+  },
+  {
+    path: 'sync_plans/:id([0-9]+)',
+    component: WithOrganization(withHeader(SyncPlanDetails, { title: __('Sync Plan Details') })),
     exact: false,
   },
 ];
