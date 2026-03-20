@@ -1,12 +1,10 @@
-require 'pulp_rpm_client'
-require 'pulp_container_client'
-require 'pulp_ostree_client'
-require 'pulp_file_client'
-require 'pulp_deb_client'
-require 'pulp_ansible_client'
-require 'pulp_python_client'
+# Pulp client modules are autoloaded via $LOAD_PATH in engine.rb
+# No explicit requires needed - they will be loaded when first referenced
 
-PulpPythonClient::PythonPythonDistribution.class_eval do
+# Only apply monkey patches if the client constants are defined
+# This allows Rails to boot even before generated clients exist
+if defined?(PulpPythonClient) && defined?(PulpPythonClient::PythonPythonDistribution)
+  PulpPythonClient::PythonPythonDistribution.class_eval do
   # Initializes the object
   # @param [Hash] attributes Model attributes in the form of hash
   def initialize(attributes = {})
@@ -65,9 +63,11 @@ PulpPythonClient::PythonPythonDistribution.class_eval do
       self.remote = attributes[:'remote']
     end
   end
+  end
 end
 
-PulpAnsibleClient::AnsibleAnsibleDistribution.class_eval do
+if defined?(PulpAnsibleClient) && defined?(PulpAnsibleClient::AnsibleAnsibleDistribution)
+  PulpAnsibleClient::AnsibleAnsibleDistribution.class_eval do
   # Initializes the object
   # @param [Hash] attributes Model attributes in the form of hash
   def initialize(attributes = {})
@@ -116,9 +116,11 @@ PulpAnsibleClient::AnsibleAnsibleDistribution.class_eval do
       end
     end
   end
+  end
 end
 
-PulpRpmClient::RpmRpmDistribution.class_eval do
+if defined?(PulpRpmClient) && defined?(PulpRpmClient::RpmRpmDistribution)
+  PulpRpmClient::RpmRpmDistribution.class_eval do
   # Initializes the object
   # @param [Hash] attributes Model attributes in the form of hash
   def initialize(attributes = {})
@@ -167,9 +169,11 @@ PulpRpmClient::RpmRpmDistribution.class_eval do
       self.publication = attributes[:'publication']
     end
   end
+  end
 end
 
-PulpContainerClient::ContainerContainerDistribution.class_eval do
+if defined?(PulpContainerClient) && defined?(PulpContainerClient::ContainerContainerDistribution)
+  PulpContainerClient::ContainerContainerDistribution.class_eval do
   # Initializes the object
   # @param [Hash] attributes Model attributes in the form of hash
   def initialize(attributes = {})
@@ -226,9 +230,11 @@ PulpContainerClient::ContainerContainerDistribution.class_eval do
       self.description = attributes[:'description']
     end
   end
+  end
 end
 
-PulpFileClient::FileFileDistribution.class_eval do
+if defined?(PulpFileClient) && defined?(PulpFileClient::FileFileDistribution)
+  PulpFileClient::FileFileDistribution.class_eval do
   # Initializes the object
   # @param [Hash] attributes Model attributes in the form of hash
   def initialize(attributes = {})
@@ -277,9 +283,11 @@ PulpFileClient::FileFileDistribution.class_eval do
       self.publication = attributes[:'publication']
     end
   end
+  end
 end
 
-PulpDebClient::DebAptDistribution.class_eval do
+if defined?(PulpDebClient) && defined?(PulpDebClient::DebAptDistribution)
+  PulpDebClient::DebAptDistribution.class_eval do
   # Initializes the object
   # @param [Hash] attributes Model attributes in the form of hash
   def initialize(attributes = {})
@@ -328,10 +336,11 @@ PulpDebClient::DebAptDistribution.class_eval do
       self.publication = attributes[:'publication']
     end
   end
+  end
 end
 
-
-PulpOstreeClient::OstreeOstreeDistribution.class_eval do
+if defined?(PulpOstreeClient) && defined?(PulpOstreeClient::OstreeOstreeDistribution)
+  PulpOstreeClient::OstreeOstreeDistribution.class_eval do
   # Initializes the object
   # @param [Hash] attributes Model attributes in the form of hash
   def initialize(attributes = {})
@@ -379,5 +388,6 @@ PulpOstreeClient::OstreeOstreeDistribution.class_eval do
     if attributes.key?(:'repository_version')
       self.repository_version = attributes[:'repository_version']
     end
+  end
   end
 end

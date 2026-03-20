@@ -33,14 +33,8 @@
 # - Pulpcore PR: https://github.com/pulp/pulpcore/pull/6953
 # - Issue report: https://github.com/pulp/pulp_rpm/issues/4178
 
-require 'pulp_rpm_client'
-require 'pulp_file_client'
-require 'pulp_ansible_client'
-require 'pulp_container_client'
-require 'pulp_deb_client'
-require 'pulp_python_client'
-require 'pulp_ostree_client'
-require 'pulpcore_client'
+# Pulp client modules are autoloaded via $LOAD_PATH in engine.rb
+# No explicit requires needed - they will be loaded when first referenced
 
 # Helper module to patch Remote API classes
 module PulpPolymorphicRemoteResponsePatch
@@ -69,16 +63,18 @@ end
 
 # Patch all Remote API classes that need polymorphic response handling
 # Note: File, Deb, and Python clients already expect AsyncOperationResponse in their bindings
-[
-  PulpRpmClient::RemotesRpmApi,
-  PulpRpmClient::RemotesUlnApi,
-  PulpAnsibleClient::RemotesCollectionApi,
-  PulpAnsibleClient::RemotesGitApi,
-  PulpAnsibleClient::RemotesRoleApi,
-  PulpContainerClient::RemotesContainerApi,
-  PulpContainerClient::RemotesPullThroughApi,
-  PulpOstreeClient::RemotesOstreeApi,
-].each do |klass|
+# Only apply patches if the client constants are defined (allows Rails to boot without generated clients)
+classes_to_patch = []
+classes_to_patch << PulpRpmClient::RemotesRpmApi if defined?(PulpRpmClient::RemotesRpmApi)
+classes_to_patch << PulpRpmClient::RemotesUlnApi if defined?(PulpRpmClient::RemotesUlnApi)
+classes_to_patch << PulpAnsibleClient::RemotesCollectionApi if defined?(PulpAnsibleClient::RemotesCollectionApi)
+classes_to_patch << PulpAnsibleClient::RemotesGitApi if defined?(PulpAnsibleClient::RemotesGitApi)
+classes_to_patch << PulpAnsibleClient::RemotesRoleApi if defined?(PulpAnsibleClient::RemotesRoleApi)
+classes_to_patch << PulpContainerClient::RemotesContainerApi if defined?(PulpContainerClient::RemotesContainerApi)
+classes_to_patch << PulpContainerClient::RemotesPullThroughApi if defined?(PulpContainerClient::RemotesPullThroughApi)
+classes_to_patch << PulpOstreeClient::RemotesOstreeApi if defined?(PulpOstreeClient::RemotesOstreeApi)
+
+classes_to_patch.each do |klass|
   [:partial_update, :update].each do |method|
     PulpPolymorphicRemoteResponsePatch.patch_remote_method(klass, method)
   end

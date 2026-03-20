@@ -1,9 +1,15 @@
-require 'pulp_rpm_client'
+# Pulp client modules are autoloaded via $LOAD_PATH in engine.rb
+# No explicit requires needed - they will be loaded when first referenced
 
 # Monkey patch to allow nil values for deprecated gpgcheck and repo_gpgcheck fields
 # These fields were removed in pulp_rpm 3.30.0 but older Pulp versions return null
 # The new bindings don't allow nil, causing ArgumentError when deserializing responses
-[PulpRpmClient::RpmRpmRepositoryResponse, PulpRpmClient::RpmRpmPublicationResponse].each do |klass|
+# Only apply patches if the client constants are defined (allows Rails to boot without generated clients)
+classes_to_patch = []
+classes_to_patch << PulpRpmClient::RpmRpmRepositoryResponse if defined?(PulpRpmClient::RpmRpmRepositoryResponse)
+classes_to_patch << PulpRpmClient::RpmRpmPublicationResponse if defined?(PulpRpmClient::RpmRpmPublicationResponse)
+
+classes_to_patch.each do |klass|
   klass.class_eval do
     # Custom attribute writer method with validation
     # @param [Object] gpgcheck Value to be assigned

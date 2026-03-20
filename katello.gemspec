@@ -49,18 +49,9 @@ Gem::Specification.new do |gem|
   # Required for repo discovery
   gem.add_dependency "spidr"
 
-  # Pulp dependencies
+  # Pulp HTTP client dependency
   # faraday pin for compatibility with foreman_azure_rm
   gem.add_dependency "faraday", ">= 1.10.2", "< 1.11.0"
-  gem.add_dependency "pulpcore_client", ">= 3.85.0", "< 3.86.0"
-  gem.add_dependency "pulp_file_client", ">= 3.85.0", "< 3.86.0"
-  gem.add_dependency "pulp_ansible_client", ">= 0.28.0", "< 0.29.0"
-  gem.add_dependency "pulp_container_client", ">= 2.26.0", "< 2.27.0"
-  gem.add_dependency "pulp_deb_client", ">= 3.8.0", "< 3.9.0"
-  gem.add_dependency "pulp_rpm_client", ">= 3.32.0", "< 3.33.0"
-  gem.add_dependency "pulp_certguard_client", ">= 3.85.0", "< 3.86.0"
-  gem.add_dependency "pulp_python_client", ">= 3.19.0", "< 3.20.0"
-  gem.add_dependency "pulp_ostree_client", ">= 2.5.0", "< 2.6.0"
 
   # UI
   gem.add_dependency "deface", '>= 1.0.2', '< 2.0.0'
@@ -68,4 +59,8 @@ Gem::Specification.new do |gem|
   gem.add_dependency "jquery-ui-rails", "~> 6.0"
 
   gem.add_development_dependency "theforeman-rubocop", '~> 0.1.0'
+
+  # Note: openapi-generator-cli is required for regenerating Pulp clients
+  # Install via: npm install -g @openapitools/openapi-generator-cli
+  # See docs/pulp_client_update_workflow.md for details
 end

@@ -139,6 +139,22 @@ module Katello
       app.config.autoload_paths += Dir["#{config.root}/app/presenters"]
       app.config.autoload_paths += Dir["#{config.root}/app/services/katello"]
       app.config.autoload_paths += Dir["#{config.root}/app/views/foreman"]
+
+      # Generated Pulp OpenAPI clients
+      generated_clients_path = config.root.join("lib", "pulp_generated_clients")
+      client_lib_paths = Dir.glob(generated_clients_path.join("*")).select do |client_dir|
+        ::File.directory?(client_dir)
+      end.map do |client_dir|
+        ::File.join(client_dir, "lib")
+      end.select do |lib_dir|
+        ::File.directory?(lib_dir)
+      end
+
+      app.config.autoload_paths += client_lib_paths
+      app.config.eager_load_paths += client_lib_paths
+      client_lib_paths.each do |lib_dir|
+        $LOAD_PATH.unshift(lib_dir) unless $LOAD_PATH.include?(lib_dir)
+      end
     end
 
     initializer "katello.paths", :before => :sooner_routes_load do |app|

@@ -60,6 +60,11 @@ npm-debug.log
 /foreman/
 package-lock.json
 webpack/foremanReact/
+# Pulp client generation temp files
+vendor/pulp/specs/.tmp/
+app/lib/katello/pulp3/generated_clients/.tmp/
+app/lib/katello/pulp3/generated_clients/*/.openapi-generator/
+
 .claude/*
 !.claude/commands/
 !.claude/commands/*.md
