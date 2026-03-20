@@ -60,7 +60,7 @@ module Katello
 
       def delete(href = repository_href)
         api.repositories_api.delete(href) if href
-      rescue api.api_exception_class => e
+      rescue Katello::PulpClient::ApiError => e
         raise e if e.code != 404
         nil
       end
@@ -112,8 +112,7 @@ module Katello
       def create_remote
         # Do not consider remotes_uln_api, since the Katello server is not a ULN server. Even if the sync
         # to Katello used ULN, the sync from Katello server to smart proxy will use a normal RPM remote!
-        remote_file_data = @repo_service.api.remote_class.new(remote_options)
-        api.remotes_api.create(remote_file_data)
+        api.remotes_api.create(remote_options)
       end
 
       def compute_remote_options
@@ -134,8 +133,7 @@ module Katello
           sync_params.delete(:sync_policy)
           sync_params[:mirror] = true
         end
-        repository_sync_url_data = api.repository_sync_url_class.new(sync_params)
-        [api.repositories_api.sync(repository_href, repository_sync_url_data)]
+        [api.repositories_api.sync(repository_href, sync_params)]
       end
 
       def common_remote_options
@@ -170,11 +168,9 @@ module Katello
       def create_publication
         if (href = version_href)
           if repo_service.repo.content_type == "deb"
-            publication_data = api.publication_verbatim_class.new({repository_version: href})
-            api.publications_verbatim_api.create(publication_data)
+            api.publications_verbatim_api.create(repository_version: href)
           else
-            publication_data = api.publication_class.new(repository_version: href)
-            api.publications_api.create(publication_data)
+            api.publications_api.create(repository_version: href)
           end
         end
       end
@@ -199,8 +195,7 @@ module Katello
           api.distributions_api.partial_update(distro.pulp_href, dist_options)
         else
           # create dist
-          distribution_data = api.distribution_class.new(dist_options)
-          api.distributions_api.create(distribution_data)
+          api.distributions_api.create(dist_options)
         end
       end
 
@@ -225,14 +220,12 @@ module Katello
       end
 
       def create_distribution(path)
-        distribution_data = api.distribution_class.new(distribution_options(path))
-        repo_service.distributions_api.create(distribution_data)
+        repo_service.distributions_api.create(distribution_options(path))
       end
 
       def repair
-        data = api.repair_class.new
         fail "Could not lookup a version_href for repo #{repo_service.repo.id}" if version_href.nil?
-        api.repository_versions_api.repair(version_href, data)
+        api.repository_versions_api.repair(version_href, {})
       end
     end
   end

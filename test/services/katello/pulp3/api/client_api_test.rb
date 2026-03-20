@@ -32,6 +32,20 @@ module Katello
               assert_nil client.default_headers['Correlation-ID']
             end
           end
+
+          client_apis.each do |input|
+            test "#{input} provides pulp_connection" do
+              api = input.new(@primary)
+              assert_instance_of Katello::PulpClient::Connection, api.pulp_connection
+            end
+          end
+
+          client_apis.each do |input|
+            test "#{input} provides pulp_client_error_class" do
+              api = input.new(@primary)
+              assert_equal Katello::PulpClient::ApiError, api.pulp_client_error_class
+            end
+          end
         end
       end
     end

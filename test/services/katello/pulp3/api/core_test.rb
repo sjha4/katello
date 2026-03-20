@@ -32,19 +32,6 @@ module Katello
             Faraday.default_adapter = default
           end
 
-          def test_logging_request_id_set_in_header
-            cid = 'abc123'
-            ::Logging.mdc['request'] = cid
-            client = Katello::Pulp3::Api::Core.new(@primary).core_api_client
-            assert_equal cid, client.default_headers['Correlation-ID']
-          end
-
-          def test_logging_request_id_not_set_in_header
-            ::Logging.mdc['request'] = nil
-            client = Katello::Pulp3::Api::Core.new(@primary).core_api_client
-            assert_nil client.default_headers['Correlation-ID']
-          end
-
           def test_cancel_task
             core = Katello::Pulp3::Api::Core.new(@primary)
             task = core.tasks_api.list.results.first
@@ -54,29 +41,34 @@ module Katello
             end
           end
 
+          def test_pulp_connection
+            conn = core.pulp_connection
+            assert_instance_of Katello::PulpClient::Connection, conn
+            assert_equal @primary, conn.smart_proxy
+          end
+
+          def test_pulp_client_error_class
+            assert_equal Katello::PulpClient::ApiError, core.pulp_client_error_class
+          end
+
           def test_exporter_api
-            PulpcoreClient::ExportersPulpApi.expects(:new)
-            core.exporter_api
+            assert_instance_of Katello::PulpClient::ApiProxy, core.exporter_api
           end
 
           def test_importer_api
-            PulpcoreClient::ImportersPulpApi.expects(:new)
-            core.importer_api
+            assert_instance_of Katello::PulpClient::ApiProxy, core.importer_api
           end
 
           def test_importer_check_api
-            PulpcoreClient::ImportersPulpImportCheckApi.expects(:new)
-            core.importer_check_api
+            assert_instance_of Katello::PulpClient::ApiProxy, core.importer_check_api
           end
 
           def test_export_api
-            PulpcoreClient::ExportersPulpExportsApi.expects(:new)
-            core.export_api
+            assert_instance_of Katello::PulpClient::ApiProxy, core.export_api
           end
 
           def test_import_api
-            PulpcoreClient::ImportersPulpImportsApi.expects(:new)
-            core.import_api
+            assert_instance_of Katello::PulpClient::ApiProxy, core.import_api
           end
         end
       end

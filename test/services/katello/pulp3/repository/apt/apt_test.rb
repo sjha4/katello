@@ -29,7 +29,7 @@ module Katello
           end
 
           def test_delete_version
-            PulpDebClient::RepositoriesAptVersionsApi.any_instance.expects(:delete).returns({})
+            Katello::PulpClient::ApiProxy.any_instance.expects(:delete).returns({})
             service = Katello::Pulp3::Repository::Apt.new(@repo, @proxy)
             @repo.version_href = '/pulp/api/v3/repositories/deb/apt/22c9e84b-f49c-4c70-9b4c-49e8c041220f/versions/1/'
             assert service.delete_version
@@ -53,7 +53,7 @@ module Katello
           def test_publication_options_wo_signing_service
             signing_service_response_list = mock
             signing_service_response_list.expects(:results).returns([])
-            PulpcoreClient::SigningServicesApi
+            Katello::PulpClient::ApiProxy
               .any_instance
               .expects(:list)
               .with(name: 'katello_deb_sign')
@@ -74,7 +74,7 @@ module Katello
             signing_service_response_list = mock
             signing_service_response_list.expects(:results).returns([signing_service])
 
-            PulpcoreClient::SigningServicesApi
+            Katello::PulpClient::ApiProxy
               .any_instance
               .expects(:list)
               .with(name: 'katello_deb_sign')
@@ -110,8 +110,7 @@ module Katello
             @repo.root.update(http_proxy_policy: ::Katello::RootRepository::USE_SELECTED_HTTP_PROXY)
             @repo.root.update(http_proxy: HttpProxy.find_by(name: "myhttpproxy"))
 
-            remote_file_data = @service.api.remote_class.new(@service.remote_options)
-            remote_response = @service.api.remotes_api.create(remote_file_data)
+            remote_response = @service.api.remotes_api.create(@service.remote_options)
             @service.delete_remote(href: remote_response.pulp_href)
           end
         end

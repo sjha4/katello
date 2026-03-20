@@ -58,10 +58,10 @@ module ::Actions::Pulp3::Repository
       repos = [@repo1.id, @repo2.id]
       tasks_map = [{ created_resources: [] }]
 
-      ::PulpFileClient::RepositoriesFileApi.any_instance.expects(:read).with("test_repo_1/").
-        returns(::PulpFileClient::FileFileRepositoryResponse.new(latest_version_href: "test_repo_1/2/"))
-      ::PulpFileClient::RepositoriesFileApi.any_instance.expects(:read).with("test_repo_2/").
-        returns(::PulpFileClient::FileFileRepositoryResponse.new(latest_version_href: "test_repo_2/3/"))
+      Katello::PulpClient::ApiProxy.any_instance.expects(:read).with("test_repo_1/").
+        returns(OpenStruct.new(latest_version_href: "test_repo_1/2/"))
+      Katello::PulpClient::ApiProxy.any_instance.expects(:read).with("test_repo_2/").
+        returns(OpenStruct.new(latest_version_href: "test_repo_2/3/"))
 
       # Stub version PRN API calls via backend service
       mock_version1 = mock('version1')
@@ -98,10 +98,10 @@ module ::Actions::Pulp3::Repository
       repos = [@repo1.id, @repo2.id]
       tasks_map = [{ created_resources: [] }]
 
-      ::PulpFileClient::RepositoriesFileApi.any_instance.expects(:read).with("test_repo_1/").
-        returns(::PulpFileClient::FileFileRepositoryResponse.new(latest_version_href: "test_repo_1/2/"))
-      ::PulpFileClient::RepositoriesFileApi.any_instance.expects(:read).with("test_repo_2/").
-        returns(::PulpFileClient::FileFileRepositoryResponse.new(latest_version_href: "test_repo_2/3/"))
+      Katello::PulpClient::ApiProxy.any_instance.expects(:read).with("test_repo_1/").
+        returns(OpenStruct.new(latest_version_href: "test_repo_1/2/"))
+      Katello::PulpClient::ApiProxy.any_instance.expects(:read).with("test_repo_2/").
+        returns(OpenStruct.new(latest_version_href: "test_repo_2/3/"))
 
       # Stub version PRN API calls via backend service
       mock_version1 = mock('version1')
@@ -135,8 +135,8 @@ module ::Actions::Pulp3::Repository
 
       tasks_map = [{ created_resources: [] }]
 
-      ::PulpFileClient::PublicationsFileApi.any_instance.expects(:read).with("test_publ_1/").
-        returns(::PulpFileClient::FileFilePublicationResponse.new(repository_version: "test_repo_1/0/"))
+      Katello::PulpClient::ApiProxy.any_instance.expects(:read).with("test_publ_1/").
+        returns(OpenStruct.new(repository_version: "test_repo_1/0/"))
       ::Katello::Repository.any_instance.stubs(:index_content).returns(true)
 
       task = ForemanTasks.sync_task(::Actions::Pulp3::Repository::SaveVersion, @repo1, tasks: tasks_map)

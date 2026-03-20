@@ -15,7 +15,7 @@ module Katello
                     :initializer => :pulp_facts
 
       def self.content_api(smart_proxy = SmartProxy.pulp_primary!)
-        PulpRpmClient::ContentPackagesApi.new(Katello::Pulp3::Api::Yum.new(smart_proxy).api_client)
+        Katello::Pulp3::Api::Yum.new(smart_proxy).content_packages_api
       end
 
       def self.page_options(page_opts = {})

@@ -17,9 +17,9 @@ module Katello
         ::Katello::SmartProxyAlternateContentSource.destroy_all
 
         pulp_remotes = [
-          PulpRpmClient::RpmRpmRemoteResponse.new(name: rhel7.pulp_id, pulp_href: rhel7_href),
-          PulpRpmClient::RpmRpmRemoteResponse.new(name: rhel6.pulp_id, pulp_href: 'rhel6'),
-          PulpRpmClient::RpmRpmRemoteResponse.new(name: fedora.pulp_id, pulp_href: 'fedora'),
+          OpenStruct.new(name: rhel7.pulp_id, pulp_href: rhel7_href),
+          OpenStruct.new(name: rhel6.pulp_id, pulp_href: 'rhel6'),
+          OpenStruct.new(name: fedora.pulp_id, pulp_href: 'fedora'),
         ]
 
         smart_proxy_mirror_repo.expects(:pulp3_enabled_repo_types).once.returns([::Katello::RepositoryTypeManager.find(:yum)])
@@ -41,9 +41,9 @@ module Katello
         repos_api = mock
 
         pulp_repositories = [
-          PulpRpmClient::RpmRpmRepositoryResponse.new(name: rhel7.pulp_id, pulp_href: rhel7_href),
-          PulpRpmClient::RpmRpmRepositoryResponse.new(name: rhel6.pulp_id, pulp_href: 'rhel6'),
-          PulpRpmClient::RpmRpmRepositoryResponse.new(name: fedora.pulp_id, pulp_href: 'fedora'),
+          OpenStruct.new(name: rhel7.pulp_id, pulp_href: rhel7_href),
+          OpenStruct.new(name: rhel6.pulp_id, pulp_href: 'rhel6'),
+          OpenStruct.new(name: fedora.pulp_id, pulp_href: 'fedora'),
         ]
 
         smart_proxy_mirror_repo.expects(:pulp3_enabled_repo_types).once.returns([::Katello::RepositoryTypeManager.find(:yum)])
@@ -65,9 +65,9 @@ module Katello
         ::Katello::SmartProxyAlternateContentSource.destroy_all
 
         pulp_remotes = [
-          PulpRpmClient::RpmRpmRemoteResponse.new(name: "protected-#{fedora.pulp_id}", pulp_href: protected_remote_href, pulp_labels: { 'katello_orphan_cleanup' => 'false' }),
-          PulpRpmClient::RpmRpmRemoteResponse.new(name: fedora.pulp_id, pulp_href: '/fedora/href'),
-          PulpRpmClient::RpmRpmRemoteResponse.new(name: 'orphan-remote', pulp_href: orphan_remote_href),
+          OpenStruct.new(name: "protected-#{fedora.pulp_id}", pulp_href: protected_remote_href, pulp_labels: { 'katello_orphan_cleanup' => 'false' }),
+          OpenStruct.new(name: fedora.pulp_id, pulp_href: '/fedora/href'),
+          OpenStruct.new(name: 'orphan-remote', pulp_href: orphan_remote_href),
         ]
 
         smart_proxy_mirror_repo.expects(:pulp3_enabled_repo_types).once.returns([::Katello::RepositoryTypeManager.find(:yum)])
@@ -110,8 +110,8 @@ module Katello
 
       def test_distributed_version_hrefs_are_skipped
         @smart_proxy_mirror_repo.expects(:report_misconfigured_repository_version).once
-        ::PulpContainerClient::RepositoriesContainerVersionsApi.any_instance.expects(:delete).raises(::PulpContainerClient::ApiError.new(code: 400, message: 'Please update the necessary distributions first.'))
-        @smart_proxy_mirror_repo.expects(:orphan_repository_versions).once.returns({ ::Katello::Pulp3::Api::Docker.new(@proxy) => [::PulpContainerClient::RepositoryVersionResponse.new(pulp_href: 'repo_href')] })
+        Katello::PulpClient::ApiProxy.any_instance.expects(:delete).raises(Katello::PulpClient::ApiError.new('Please update the necessary distributions first.', status: 400))
+        @smart_proxy_mirror_repo.expects(:orphan_repository_versions).once.returns({ ::Katello::Pulp3::Api::Docker.new(@proxy) => [OpenStruct.new(pulp_href: 'repo_href')] })
         @smart_proxy_mirror_repo.delete_orphan_repository_versions
       end
 
@@ -121,8 +121,8 @@ module Katello
         pub_href = 'pub_href'
         dist_href = 'dist_href'
         api = ::Katello::Pulp3::Api::Yum.new(@proxy)
-        api.expects(:publications_list_all).with(repository_version: ver_href).once.returns([::PulpRpmClient::RpmRpmPublicationResponse.new(pulp_href: pub_href)])
-        api.expects(:distributions_list_all).once.returns([::PulpRpmClient::RpmRpmDistributionResponse.new(pulp_href: dist_href, publication: pub_href, name: fedora.pulp_id)])
+        api.expects(:publications_list_all).with(repository_version: ver_href).once.returns([OpenStruct.new(pulp_href: pub_href)])
+        api.expects(:distributions_list_all).once.returns([OpenStruct.new(pulp_href: dist_href, publication: pub_href, name: fedora.pulp_id)])
 
         errors = @smart_proxy_mirror_repo.report_misconfigured_repository_version(api, ver_href)
         assert_includes errors, "Completely resync (skip metadata check) repositories with the following paths to the smart proxy with ID #{@proxy.id}: " \
@@ -137,7 +137,7 @@ module Katello
         ver_href = 'ver_href'
         dist_href = 'dist_href'
         api = ::Katello::Pulp3::Api::Docker.new(@proxy)
-        api.expects(:distributions_list_all).once.returns([::PulpContainerClient::ContainerContainerDistributionResponse.new(pulp_href: dist_href, repository_version: ver_href, name: busybox.pulp_id)])
+        api.expects(:distributions_list_all).once.returns([OpenStruct.new(pulp_href: dist_href, repository_version: ver_href, name: busybox.pulp_id)])
 
         errors = @smart_proxy_mirror_repo.report_misconfigured_repository_version(api, ver_href)
         assert_includes errors, "Completely resync (skip metadata check) repositories with the following paths to the smart proxy with ID #{@proxy.id}: " \
@@ -152,8 +152,8 @@ module Katello
         pub_href = 'pub_href'
         dist_href = 'dist_href'
         api = ::Katello::Pulp3::Api::Yum.new(@proxy)
-        api.expects(:publications_list_all).with(repository_version: ver_href).once.returns([::PulpRpmClient::RpmRpmPublicationResponse.new(pulp_href: pub_href)])
-        api.expects(:distributions_list_all).once.returns([::PulpRpmClient::RpmRpmDistributionResponse.new(pulp_href: dist_href, publication: pub_href, name: 'not here')])
+        api.expects(:publications_list_all).with(repository_version: ver_href).once.returns([OpenStruct.new(pulp_href: pub_href)])
+        api.expects(:distributions_list_all).once.returns([OpenStruct.new(pulp_href: dist_href, publication: pub_href, name: 'not here')])
 
         errors = @smart_proxy_mirror_repo.report_misconfigured_repository_version(api, ver_href)
         assert_equal errors, []
@@ -170,8 +170,8 @@ module Katello
 
       def test_distributed_version_hrefs_are_skipped
         @smart_proxy_repo.expects(:report_misconfigured_repository_version).once
-        ::PulpContainerClient::RepositoriesContainerVersionsApi.any_instance.expects(:delete).raises(::PulpContainerClient::ApiError.new(code: 400, message: 'Please update the necessary distributions first.'))
-        @smart_proxy_repo.expects(:orphan_repository_versions).once.returns({ ::Katello::Pulp3::Api::Docker.new(@primary) => [::PulpContainerClient::RepositoryVersionResponse.new(pulp_href: 'repo_href')] })
+        Katello::PulpClient::ApiProxy.any_instance.expects(:delete).raises(Katello::PulpClient::ApiError.new('Please update the necessary distributions first.', status: 400))
+        @smart_proxy_repo.expects(:orphan_repository_versions).once.returns({ ::Katello::Pulp3::Api::Docker.new(@primary) => [OpenStruct.new(pulp_href: 'repo_href')] })
         @smart_proxy_repo.delete_orphan_repository_versions
       end
 
@@ -205,8 +205,8 @@ module Katello
         pub_href = 'pub_href'
         dist_href = 'dist_href'
         api = ::Katello::Pulp3::Api::Yum.new(@primary)
-        api.expects(:publications_list_all).with(repository_version: ver_href).once.returns([::PulpRpmClient::RpmRpmPublicationResponse.new(pulp_href: pub_href)])
-        api.expects(:distributions_list_all).once.returns([::PulpRpmClient::RpmRpmDistributionResponse.new(pulp_href: dist_href, publication: pub_href)])
+        api.expects(:publications_list_all).with(repository_version: ver_href).once.returns([OpenStruct.new(pulp_href: pub_href)])
+        api.expects(:distributions_list_all).once.returns([OpenStruct.new(pulp_href: dist_href, publication: pub_href)])
 
         ::Katello::Pulp3::DistributionReference.create!(path: 'path', href: dist_href, repository_id: fedora.id)
 
@@ -222,8 +222,8 @@ module Katello
         pub_href = 'pub_href'
         dist_href = 'dist_href'
         api = ::Katello::Pulp3::Api::Yum.new(@primary)
-        api.expects(:publications_list_all).with(repository_version: ver_href).once.returns([::PulpRpmClient::RpmRpmPublicationResponse.new(pulp_href: pub_href)])
-        api.expects(:distributions_list_all).once.returns([::PulpRpmClient::RpmRpmDistributionResponse.new(pulp_href: dist_href, publication: pub_href)])
+        api.expects(:publications_list_all).with(repository_version: ver_href).once.returns([OpenStruct.new(pulp_href: pub_href)])
+        api.expects(:distributions_list_all).once.returns([OpenStruct.new(pulp_href: dist_href, publication: pub_href)])
 
         ::Katello::Pulp3::DistributionReference.create!(path: 'path', href: dist_href, repository_id: fedora.id)
 
@@ -238,7 +238,7 @@ module Katello
         ver_href = 'ver_href'
         dist_href = 'dist_href'
         api = ::Katello::Pulp3::Api::Docker.new(@primary)
-        api.expects(:distributions_list_all).once.returns([::PulpContainerClient::ContainerContainerDistributionResponse.new(pulp_href: dist_href, repository_version: ver_href)])
+        api.expects(:distributions_list_all).once.returns([OpenStruct.new(pulp_href: dist_href, repository_version: ver_href)])
 
         ::Katello::Pulp3::DistributionReference.create!(path: 'path', href: dist_href, repository_id: busybox.id)
 
@@ -253,8 +253,8 @@ module Katello
         pub_href = 'pub_href'
         dist_href = 'dist_href'
         api = ::Katello::Pulp3::Api::Yum.new(@primary)
-        api.expects(:publications_list_all).with(repository_version: ver_href).once.returns([::PulpRpmClient::RpmRpmPublicationResponse.new(pulp_href: pub_href)])
-        api.expects(:distributions_list_all).once.returns([::PulpRpmClient::RpmRpmDistributionResponse.new(pulp_href: dist_href, publication: pub_href)])
+        api.expects(:publications_list_all).with(repository_version: ver_href).once.returns([OpenStruct.new(pulp_href: pub_href)])
+        api.expects(:distributions_list_all).once.returns([OpenStruct.new(pulp_href: dist_href, publication: pub_href)])
 
         errors = @smart_proxy_repo.report_misconfigured_repository_version(api, ver_href)
         assert_equal errors, []

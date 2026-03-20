@@ -20,8 +20,7 @@ module Actions
             output[:pulp_tasks] = nil
           else
             output[:artifact_href] = nil
-            upload_commit = repo_backend_service.core_api.upload_commit_class.new(sha256: input[:sha256])
-            output[:pulp_tasks] = [uploads_api.commit(input[:upload_href], upload_commit)]
+            output[:pulp_tasks] = [uploads_api.commit(input[:upload_href], { sha256: input[:sha256] })]
           end
         end
 

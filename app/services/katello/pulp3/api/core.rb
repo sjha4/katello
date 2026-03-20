@@ -1,4 +1,4 @@
-require "pulpcore_client"
+require "katello/pulp_client"
 
 module Katello
   module Pulp3
@@ -11,70 +11,69 @@ module Katello
           @repository_type = repository_type
         end
 
-        def client_module
-          repository_type.client_module_class
+        def pulp_connection
+          @pulp_connection ||= Katello::PulpClient::Connection.new(smart_proxy)
         end
 
-        delegate :remote_class, to: :repository_type
+        def api_exception_class
+          Katello::PulpClient::ApiError
+        end
+
+        def pulp_client_error_class
+          Katello::PulpClient::ApiError
+        end
 
         def self.remote_uln_class
           fail NotImplementedError
         end
 
-        delegate :distribution_class, to: :repository_type
-
-        delegate :publication_class, to: :repository_type
-
-        def repository_sync_url_class
-          repository_type.repo_sync_url_class
-        end
-
-        def api_client
-          config = smart_proxy.pulp3_configuration(repository_type.configuration_class)
-          config.params_encoder = Faraday::FlatParamsEncoder
-          api_client_class(repository_type.api_class.new(config))
-        end
-
-        def api_exception_class
-          client_module::ApiError
-        end
+        # --- Remotes ---
 
         def remotes_api
-          repository_type.remotes_api_class.new(api_client)
+          api_proxy(repository_type.remotes_op_prefix)
         end
 
         def remotes_uln_api
           fail NotImplementedError
         end
 
-        # Method is called with either :url or :href parameters for the sake of yum content.
         def get_remotes_api(*)
           remotes_api
         end
 
+        # --- Publications ---
+
         def publications_api
-          repository_type.publications_api_class.new(api_client) #Optional
+          api_proxy(repository_type.publications_op_prefix)
         end
+
+        # --- Distributions ---
 
         def distributions_api
-          repository_type.distributions_api_class.new(api_client)
+          api_proxy(repository_type.distributions_op_prefix)
         end
 
-        def core_repositories_api
-          PulpcoreClient::RepositoriesApi.new(core_api_client)
-        end
-
-        def core_repository_versions_api
-          PulpcoreClient::RepositoryVersionsApi.new(core_api_client)
-        end
+        # --- Plugin Repositories ---
 
         def repositories_api
-          repository_type.repositories_api_class.new(api_client)
+          api_proxy(repository_type.repositories_op_prefix)
         end
 
         def repository_versions_api
-          repository_type.repository_versions_api_class.new(api_client)
+          api_proxy(repository_type.repository_versions_op_prefix)
         end
+
+        # --- Core APIs (pulpcore operations) ---
+
+        def core_repositories_list(opts = {})
+          pulp_connection.call('repositories_list', params: opts)
+        end
+
+        def core_repository_versions_list(opts = {})
+          pulp_connection.call('repository_versions_list', params: opts)
+        end
+
+        # --- Exception handling ---
 
         def self.ignore_409_exception(*)
           yield
@@ -83,113 +82,98 @@ module Katello
           nil
         end
 
-        def repair_class
-          client_module::Repair
+        def cancel_task(task_href)
+          pulp_connection.call('tasks_cancel',
+            params: { task_href: task_href },
+            body: { state: 'canceled' })
+        rescue Katello::PulpClient::ApiError => e
+          raise e unless e.code == 409
+          nil
         end
 
-        def cancel_task(task_href)
-          data = PulpcoreClient::TaskResponse.new(state: 'canceled')
-          self.class.ignore_409_exception do
-            tasks_api.tasks_cancel(task_href, data)
-          end
-        end
+        # --- Core API accessors (pulpcore operations via ApiProxy) ---
 
         def repositories_reclaim_space_api
-          PulpcoreClient::RepositoriesReclaimSpaceApi.new(core_api_client)
+          api_proxy('repositories_reclaim_space')
         end
 
         def yum_exporter_api
-          PulpcoreClient::ExportersFilesystemApi.new(core_api_client)
+          api_proxy('exporters_filesystem')
         end
 
         def exporter_api
-          PulpcoreClient::ExportersPulpApi.new(core_api_client)
+          api_proxy('exporters_pulp')
         end
 
         def importer_api
-          PulpcoreClient::ImportersPulpApi.new(core_api_client)
+          api_proxy('importers_pulp')
         end
 
         def importer_check_api
-          PulpcoreClient::ImportersPulpImportCheckApi.new(core_api_client)
+          api_proxy('importers_pulp_import_check')
         end
 
         def yum_export_api
-          PulpcoreClient::ExportersFilesystemExportsApi.new(core_api_client)
+          api_proxy('exporters_filesystem_exports')
         end
 
         def export_api
-          PulpcoreClient::ExportersPulpExportsApi.new(core_api_client)
+          api_proxy('exporters_pulp_exports')
         end
 
         def import_api
-          PulpcoreClient::ImportersPulpImportsApi.new(core_api_client)
+          api_proxy('importers_pulp_imports')
         end
 
         def orphans_api
-          PulpcoreClient::OrphansCleanupApi.new(core_api_client)
+          api_proxy('orphans_cleanup')
         end
 
         def artifacts_api
-          PulpcoreClient::ArtifactsApi.new(core_api_client)
-        end
-
-        def core_api_client
-          client = PulpcoreClient::ApiClient.new(smart_proxy.pulp3_configuration(PulpcoreClient::Configuration))
-          api_client_class(client)
-        end
-
-        def api_client_class(client)
-          request_id = ::Logging.mdc['request']
-          client.default_headers['Correlation-ID'] = request_id if request_id
-          client
+          api_proxy('artifacts')
         end
 
         def repair_api
-          PulpcoreClient::RepairApi.new(core_api_client)
+          api_proxy('repair')
         end
 
         def uploads_api
-          PulpcoreClient::UploadsApi.new(core_api_client)
-        end
-
-        def upload_commit_class
-          PulpcoreClient::UploadCommit
+          api_proxy('uploads')
         end
 
         def signing_services_api
-          PulpcoreClient::SigningServicesApi.new(core_api_client)
+          api_proxy('signing_services')
         end
 
         def tasks_api
-          PulpcoreClient::TasksApi.new(core_api_client)
+          api_proxy('tasks')
         end
 
         def task_groups_api
-          PulpcoreClient::TaskGroupsApi.new(core_api_client)
+          api_proxy('task_groups')
         end
 
-        def upload_class
-          PulpcoreClient::Upload
+        def core_repositories_api
+          api_proxy('repositories')
+        end
+
+        def core_repository_versions_api
+          api_proxy('repository_versions')
         end
 
         def ignore_404_exception(*)
           yield
-        rescue self.api_exception_class => e
+        rescue Katello::PulpClient::ApiError => e
           raise e unless e.code == 404
           nil
         end
 
-        def purge_class
-          PulpcoreClient::Purge
-        end
-
         def purge_completed_tasks
-          tasks_api.purge(purge_class.new(finished_before: DateTime.now - Setting[:completed_pulp_task_protection_days]))
+          tasks_api.purge(finished_before: DateTime.now - Setting[:completed_pulp_task_protection_days])
         end
 
         def delete_orphans
-          [orphans_api.cleanup(PulpcoreClient::OrphansCleanup.new(orphan_protection_time: (smart_proxy.pulp_mirror? ? 0 : Setting[:orphan_protection_time])))]
+          [orphans_api.cleanup(orphan_protection_time: (smart_proxy.pulp_mirror? ? 0 : Setting[:orphan_protection_time]))]
         end
 
         def delete_remote(remote_href)
@@ -264,7 +248,7 @@ module Katello
         end
 
         def repair
-          repair_api.post(PulpcoreClient::Repair.new(verify_checksums: true))
+          repair_api.post(verify_checksums: true)
         end
 
         def self.fetch_from_list
@@ -285,6 +269,12 @@ module Katello
           end
 
           results
+        end
+
+        private
+
+        def api_proxy(operation_prefix)
+          Katello::PulpClient::ApiProxy.new(pulp_connection, operation_prefix)
         end
       end
     end

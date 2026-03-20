@@ -1,5 +1,5 @@
 require 'set'
-require 'pulp_file_client'
+require 'katello/pulp_client'
 
 module Katello
   module Pulp3

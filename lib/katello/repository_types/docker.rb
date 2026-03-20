@@ -8,16 +8,10 @@ Katello::RepositoryTypeManager.register(::Katello::Repository::DOCKER_TYPE) do
 
   set_unique_content_per_repo
 
-  client_module_class PulpContainerClient
-  api_class PulpContainerClient::ApiClient
-  configuration_class PulpContainerClient::Configuration
-  remote_class PulpContainerClient::ContainerContainerRemote
-  remotes_api_class PulpContainerClient::RemotesContainerApi
-  repository_versions_api_class PulpContainerClient::RepositoriesContainerVersionsApi
-  repositories_api_class PulpContainerClient::RepositoriesContainerApi
-  distributions_api_class PulpContainerClient::DistributionsContainerApi
-  distribution_class PulpContainerClient::ContainerContainerDistribution
-  repo_sync_url_class PulpContainerClient::ContainerRepositorySyncURL
+  repositories_op_prefix 'repositories_container_container'
+  remotes_op_prefix 'remotes_container_container'
+  distributions_op_prefix 'distributions_container_container'
+  repository_versions_op_prefix 'repositories_container_container_versions'
 
   index_additional_data do |repo|
     Katello::DockerMetaTag.import_meta_tags([repo])

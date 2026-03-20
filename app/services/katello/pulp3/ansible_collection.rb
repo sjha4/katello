@@ -5,7 +5,7 @@ module Katello
       PULPCORE_CONTENT_TYPE = "ansible.collection_version".freeze
 
       def self.content_api
-        PulpAnsibleClient::ContentCollectionVersionsApi.new(Katello::Pulp3::Api::AnsibleCollection.new(SmartProxy.pulp_primary!).api_client)
+        Katello::Pulp3::Api::AnsibleCollection.new(SmartProxy.pulp_primary!).content_collection_versions_api
       end
 
       def self.ids_for_repository(repo_id)

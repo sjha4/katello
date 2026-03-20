@@ -1,19 +1,15 @@
-require "pulpcore_client"
+require "katello/pulp_client"
 
 module Katello
   module Pulp3
     module Api
       class File < Core
-        def self.add_remove_content_class
-          PulpFileClient::RepositoryAddRemoveContent
-        end
-
-        def self.alternate_content_source_class
-          PulpFileClient::FileFileAlternateContentSource
-        end
-
         def alternate_content_source_api
-          PulpFileClient::AcsFileApi.new(api_client)
+          api_proxy('acs_file')
+        end
+
+        def content_files_api
+          api_proxy('content_file_files')
         end
       end
     end

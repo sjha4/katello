@@ -17,9 +17,7 @@ module Katello
         def test_sync
           @repo_mirror.stubs(:remote_href).returns("remote_href")
           @repo_mirror.stubs(:repository_href).returns("repository_href")
-          sync_url = @repo_service.api.repository_sync_url_class.new(remote: "remote_href", mirror: true, optimize: true)
-          PulpAnsibleClient::AnsibleRepositorySyncURL.expects(:new).with({ remote: "remote_href", mirror: true, optimize: true }).once.returns(sync_url)
-          PulpAnsibleClient::RepositoriesAnsibleApi.any_instance.expects(:sync).once.with("repository_href", sync_url)
+          Katello::PulpClient::ApiProxy.any_instance.expects(:sync).once.with("repository_href", { remote: "remote_href", mirror: true, optimize: true })
           @repo_mirror.sync(optimize: true, skip_types: "another test")
         end
 
@@ -29,7 +27,7 @@ module Katello
           @repo_mirror.stubs(:version_href).returns("repo_href")
           @repo_service.expects(:lookup_distributions).returns([mock_distribution])
           @repo_service.expects(:relative_path).returns("relative_path")
-          PulpAnsibleClient::DistributionsAnsibleApi.any_instance.expects(:partial_update).with("pulp_href",
+          Katello::PulpClient::ApiProxy.any_instance.expects(:partial_update).with("pulp_href",
                                                                                                 { :content_guard => nil,
                                                                                                   :repository_version => "repo_href",
                                                                                                   :base_path => "relative_path" })
@@ -40,16 +38,13 @@ module Katello
           @repo_service.stubs(:lookup_distributions).returns([])
           @repo_service.stubs(:relative_path).returns("mock relative_path")
           @repo_mirror.stubs(:version_href).returns("repo_href")
-          distribution_data = "mock distribution_data"
-          PulpAnsibleClient::AnsibleAnsibleDistribution.expects(:new).with(
+          Katello::PulpClient::ApiProxy.any_instance.expects(:create).with(
           {
             :base_path => "mock relative_path",
             :name => "Default_Organization-Cabinet-pulp3_Ansible_collection_1",
             :content_guard => nil,
             :repository_version => "repo_href",
-          }).returns(distribution_data)
-
-          PulpAnsibleClient::DistributionsAnsibleApi.any_instance.expects(:create).with(distribution_data)
+          })
           @repo_mirror.refresh_distributions(name: "test name", base_path: "test base_path", content_guard: "test content_guard")
         end
       end

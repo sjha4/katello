@@ -9,8 +9,8 @@ module Katello
       @metadata1_href = "/href1"
       @metadata2_href = "/href2"
       @metadatafiles_results = [
-        PulpRpmClient::RpmRepoMetadataFileResponse.new(:pulp_href => @metadata1_href),
-        PulpRpmClient::RpmRepoMetadataFileResponse.new(:pulp_href => @metadata2_href),
+        OpenStruct.new(:pulp_href => @metadata1_href),
+        OpenStruct.new(:pulp_href => @metadata2_href),
       ]
     end
 
@@ -35,8 +35,8 @@ module Katello
       @distribution_tree1_href = "/href1"
       @distribution_tree2_href = "/href2"
       @distribution_trees_results = [
-        PulpRpmClient::RpmDistributionTreeResponse.new(:pulp_href => @distribution_tree1_href),
-        PulpRpmClient::RpmDistributionTreeResponse.new(:pulp_href => @distribution_tree2_href),
+        OpenStruct.new(:pulp_href => @distribution_tree1_href),
+        OpenStruct.new(:pulp_href => @distribution_tree2_href),
       ]
     end
 

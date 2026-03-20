@@ -47,11 +47,11 @@ module ::Actions::Katello::ContentViewVersion
       exporter_data = create_exporter
       delete_exporter(exporter_data)
 
-      assert_raises(PulpcoreClient::ApiError) do
+      assert_raises(Katello::PulpClient::ApiError) do
         Katello::Pulp3::Api::Core.new(@primary).exporter_api.read(exporter_data[:pulp_href])
       end
 
-      assert_raises(PulpcoreClient::ApiError) do
+      assert_raises(Katello::PulpClient::ApiError) do
         assert_empty Katello::Pulp3::Api::Core.new(@primary).export_api.list(exporter_data[:pulp_href])
       end
     end

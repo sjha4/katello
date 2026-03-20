@@ -2,20 +2,14 @@ Katello::RepositoryTypeManager.register(::Katello::Repository::DEB_TYPE) do
   pulp3_service_class Katello::Pulp3::Repository::Apt
   pulp3_api_class Katello::Pulp3::Api::Apt
   pulp3_plugin 'deb'
+  pulp3_skip_publication false
   prevent_unneeded_metadata_publish
 
-  client_module_class PulpDebClient
-  api_class PulpDebClient::ApiClient
-  configuration_class PulpDebClient::Configuration
-  remote_class PulpDebClient::DebAptRemote
-  remotes_api_class PulpDebClient::RemotesAptApi
-  repository_versions_api_class PulpDebClient::RepositoriesAptVersionsApi
-  repositories_api_class PulpDebClient::RepositoriesAptApi
-  distributions_api_class PulpDebClient::DistributionsAptApi
-  distribution_class PulpDebClient::DebAptDistribution
-  publication_class PulpDebClient::DebAptPublication
-  publications_api_class PulpDebClient::PublicationsAptApi
-  repo_sync_url_class PulpDebClient::AptRepositorySyncURL
+  repositories_op_prefix 'repositories_deb_apt'
+  remotes_op_prefix 'remotes_deb_apt'
+  distributions_op_prefix 'distributions_deb_apt'
+  publications_op_prefix 'publications_deb_apt'
+  repository_versions_op_prefix 'repositories_deb_apt_versions'
 
   default_managed_content_type Katello::Deb::CONTENT_TYPE
   content_type Katello::Deb,

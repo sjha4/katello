@@ -1,5 +1,5 @@
 # rubocop:disable Metrics/ClassLength
-require "pulpcore_client"
+require "katello/pulp_client"
 module Katello
   module Pulp3
     class Repository
@@ -71,8 +71,7 @@ module Katello
       end
 
       def repair(repository_version_href)
-        data = api.repair_class.new
-        api.repository_versions_api.repair(repository_version_href, data)
+        api.repository_versions_api.repair(repository_version_href, {})
       end
 
       def skip_types
@@ -230,8 +229,7 @@ module Katello
       end
 
       def sync(options = {})
-        repository_sync_url_data = api.repository_sync_url_class.new(sync_url_params(options))
-        [api.repositories_api.sync(repository_reference.repository_href, repository_sync_url_data)]
+        [api.repositories_api.sync(repository_reference.repository_href, sync_url_params(options))]
       end
 
       def sync_url_params(_sync_options)
@@ -241,8 +239,7 @@ module Katello
       end
 
       def create_publication
-        publication_data = api.publication_class.new(publication_options(repo))
-        api.publications_api.create(publication_data)
+        api.publications_api.create(publication_options(repo))
       end
 
       def delete_publication
@@ -285,7 +282,7 @@ module Katello
         # Note: the distribution reference can't be saved yet because distribution creation is async
         begin
           create_distribution(relative_path)
-        rescue api.client_module::ApiError => e
+        rescue Katello::PulpClient::ApiError => e
           # Now it seems there is a distribution. Fetch it and save the reference.
           if e.message.include?("\"base_path\":[\"This field must be unique.\"]") ||
               e.message.include?("\"base_path\":[\"Overlaps with existing distribution\"")
@@ -301,11 +298,10 @@ module Katello
       def create_distribution(path)
         options = secure_distribution_options(path)
         options.delete(:content_guard_prn) # Remove PRN field before sending to Pulp
-        distribution_data = api.distribution_class.new(options)
         unless ::Katello::RepositoryTypeManager.find(repo.content_type).pulp3_skip_publication
-          fail_missing_publication(distribution_data.publication)
+          fail_missing_publication(options[:publication])
         end
-        api.distributions_api.create(distribution_data)
+        api.distributions_api.create(options)
       end
 
       def lookup_distributions(args)
@@ -342,18 +338,18 @@ module Katello
           tasks << api.repositories_api.modify(repository_reference.repository_href, remove_content_units: ['*'])
         end
 
-        if options[:mirror] && api.class.respond_to?(:add_remove_content_class)
-          data = api.class.add_remove_content_class.new(
-                    base_version: source_repository.version_href)
+        if options[:mirror]
+          data = { base_version: source_repository.version_href }
 
           tasks << api.repositories_api.modify(repository_reference.repository_href, data)
           tasks
         elsif api.respond_to? :copy_api
-          data = api.class.copy_class.new
-          data.config = [{
-            source_repo_version: source_repository.version_href,
-            dest_repo: repository_reference.repository_href,
-          }]
+          data = {
+            config: [{
+              source_repo_version: source_repository.version_href,
+              dest_repo: repository_reference.repository_href,
+            }],
+          }
           tasks << api.copy_api.copy_content(data)
           tasks
         else
@@ -558,10 +554,11 @@ module Katello
       end
 
       def repository_import_content(artifact_href, options = {})
-        ostree_import = PulpOstreeClient::OstreeRepoImport.new
-        ostree_import.artifact = artifact_href
-        ostree_import.repository_name = options[:ostree_repository_name]
-        ostree_import.ref = options[:ostree_ref]
+        ostree_import = {
+          artifact: artifact_href,
+          repository_name: options[:ostree_repository_name],
+          ref: options[:ostree_ref],
+        }
         api.repositories_api.import_commits(repository_reference.repository_href, ostree_import)
       end
 
@@ -573,7 +570,7 @@ module Katello
         else
           api.repositories_api.modify(repository_reference.repository_href, add_content_units: content_unit_href)
         end
-      rescue api.client_module::ApiError => e
+      rescue Katello::PulpClient::ApiError => e
         if e.message.include? 'Could not find the following content units'
           raise ::Katello::Errors::Pulp3Error, "Content units that do not exist in Pulp were requested to be copied."\
              " Please run `foreman-rake katello:delete_orphaned_content` to fix the following repository:"\
@@ -586,7 +583,7 @@ module Katello
       def add_content_for_repo(repository_href, content_unit_href)
         content_unit_href = [content_unit_href] unless content_unit_href.is_a?(Array)
         api.repositories_api.modify(repository_href, add_content_units: content_unit_href)
-      rescue api.client_module::ApiError => e
+      rescue Katello::PulpClient::ApiError => e
         if e.message.include? 'Could not find the following content units'
           raise ::Katello::Errors::Pulp3Error, "Content units that do not exist in Pulp were requested to be copied."\
             " Please run `foreman-rake katello:delete_orphaned_content` to fix the following repository:"\

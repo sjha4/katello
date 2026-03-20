@@ -3,19 +3,13 @@ Katello::RepositoryTypeManager.register(::Katello::Repository::FILE_TYPE) do
   pulp3_service_class Katello::Pulp3::Repository::File
   pulp3_api_class Katello::Pulp3::Api::File
   pulp3_plugin 'file'
+  pulp3_skip_publication false
 
-  client_module_class PulpFileClient
-  api_class PulpFileClient::ApiClient
-  configuration_class PulpFileClient::Configuration
-  remote_class PulpFileClient::FileFileRemote
-  remotes_api_class PulpFileClient::RemotesFileApi
-  repository_versions_api_class PulpFileClient::RepositoriesFileVersionsApi
-  repositories_api_class PulpFileClient::RepositoriesFileApi
-  distributions_api_class PulpFileClient::DistributionsFileApi
-  distribution_class PulpFileClient::FileFileDistribution
-  publication_class PulpFileClient::FileFilePublication
-  publications_api_class PulpFileClient::PublicationsFileApi
-  repo_sync_url_class PulpFileClient::RepositorySyncURL
+  repositories_op_prefix 'repositories_file_file'
+  remotes_op_prefix 'remotes_file_file'
+  distributions_op_prefix 'distributions_file_file'
+  publications_op_prefix 'publications_file_file'
+  repository_versions_op_prefix 'repositories_file_file_versions'
 
   content_type Katello::FileUnit,
                :pulp3_service_class => ::Katello::Pulp3::FileUnit,

@@ -15,6 +15,7 @@ require "#{Katello::Engine.root}/test/support/capsule_support"
 require "#{Katello::Engine.root}/test/support/export_support"
 require "#{Katello::Engine.root}/test/support/fixtures_support"
 require "#{Katello::Engine.root}/test/support/pulp3_support"
+require "#{Katello::Engine.root}/test/test_pulp_client_helper"
 
 require 'dynflow/testing'
 Mocha::Mock.include Dynflow::Testing::Mimic
@@ -79,6 +80,7 @@ module FixtureTestCase
     load_permissions
     load_repository_types
     configure_vcr
+    TestPulpClientHelper.setup
 
     before do
       #provide consistent remote name for test

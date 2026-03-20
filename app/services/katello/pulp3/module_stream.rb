@@ -5,7 +5,7 @@ module Katello
       PULPCORE_CONTENT_TYPE = "rpm.modulemd".freeze
 
       def self.content_api
-        PulpRpmClient::ContentModulemdsApi.new(Katello::Pulp3::Api::Yum.new(SmartProxy.pulp_primary!).api_client)
+        Katello::Pulp3::Api::Yum.new(SmartProxy.pulp_primary!).content_modulemds_api
       end
 
       def self.ids_for_repository(repo_id)

@@ -88,7 +88,7 @@ module Katello
 
           def test_refresh_distributions_distribution_ref_wrong
             service = @repo.backend_service(@proxy)
-            service.stubs(:lookup_distributions).returns([PulpRpmClient::RpmRpmDistributionResponse.new(pulp_href: 'some fake href')])
+            service.stubs(:lookup_distributions).returns([OpenStruct.new(pulp_href: 'some fake href')])
             fake_dist_ref = ::Katello::Pulp3::DistributionReference.new(href: 'hey its an href')
             service.stubs(:distribution_reference).returns(fake_dist_ref)
 
@@ -139,7 +139,7 @@ module Katello
           end
 
           def test_delete_version
-            PulpRpmClient::RepositoriesRpmVersionsApi.any_instance.expects(:delete).returns({})
+            Katello::PulpClient::ApiProxy.any_instance.expects(:delete).returns({})
             service = Katello::Pulp3::Repository::Yum.new(@repo, @proxy)
             @repo.version_href = '/pulp/api/v3/repositories/rpm/rpm/22c9e84b-f49c-4c70-9b4c-49e8c041220f/versions/1/'
             assert service.delete_version
@@ -196,8 +196,7 @@ module Katello
             @repo.root.update(http_proxy_policy: ::Katello::RootRepository::USE_SELECTED_HTTP_PROXY)
             @repo.root.update(http_proxy: HttpProxy.find_by(name: "myhttpproxy"))
 
-            remote_file_data = @service.api.remote_class.new(@service.remote_options)
-            remote_response = @service.api.remotes_api.create(remote_file_data)
+            remote_response = @service.api.remotes_api.create(@service.remote_options)
             @service.delete_remote(href: remote_response.pulp_href)
           end
         end

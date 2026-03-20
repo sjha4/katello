@@ -5,7 +5,7 @@ module Katello
       PULPCORE_CONTENT_TYPE = "container.manifest".freeze
 
       def self.content_api(smart_proxy = SmartProxy.pulp_primary!)
-        PulpContainerClient::ContentManifestsApi.new(Katello::Pulp3::Api::Docker.new(smart_proxy).api_client)
+        Katello::Pulp3::Api::Docker.new(smart_proxy).content_manifests_api
       end
 
       def self.ids_for_repository(repo_id)

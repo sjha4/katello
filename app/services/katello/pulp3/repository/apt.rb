@@ -1,4 +1,4 @@
-require 'pulp_deb_client'
+require 'katello/pulp_client'
 
 module Katello
   module Pulp3
@@ -116,9 +116,7 @@ module Katello
           tasks = []
 
           if repo_id_map.values.pluck(:content_unit_hrefs).flatten.any?
-            data = PulpDebClient::Copy.new
-            data.dependency_solving = false
-            data.config = []
+            data = { dependency_solving: false, config: [] }
             repo_id_map.each do |source_repo_ids, dest_repo_id_map|
               dest_repo = ::Katello::Repository.find(dest_repo_id_map[:dest_repo])
               dest_repo_href = ::Katello::Pulp3::Repository::Apt.new(dest_repo, SmartProxy.pulp_primary).repository_reference.repository_href
@@ -135,7 +133,7 @@ module Katello
                 source_repo_version = ::Katello::Repository.find(source_repo_id).version_href
                 config = { source_repo_version: source_repo_version, dest_repo: dest_repo_href, content: content_unit_hrefs }
                 config[:dest_base_version] = dest_repo_id_map[:base_version] if dest_repo_id_map[:base_version]
-                data.config << config
+                data[:config] << config
               end
             end
             tasks << copy_content_chunked(data)
@@ -146,17 +144,15 @@ module Katello
         end
 
         def copy_api_data_dup(data)
-          data_dup = PulpDebClient::Copy.new
-          data_dup.dependency_solving = data.dependency_solving
-          data_dup.config = []
-          data.config.each do |repo_config|
+          data_dup = { dependency_solving: data[:dependency_solving], config: [] }
+          data[:config].each do |repo_config|
             config_hash = {
               source_repo_version: repo_config[:source_repo_version],
               dest_repo: repo_config[:dest_repo],
               content: [],
             }
             config_hash[:dest_base_version] = repo_config[:dest_base_version] if repo_config[:dest_base_version]
-            data_dup.config << config_hash
+            data_dup[:config] << config_hash
           end
           data_dup
         end
@@ -164,18 +160,18 @@ module Katello
         def copy_content_chunked(data)
           tasks = []
           # Don't chunk if there aren't enough content units
-          if data.config.sum { |repo_config| repo_config[:content].size } <= UNIT_LIMIT
+          if data[:config].sum { |repo_config| repo_config[:content].size } <= UNIT_LIMIT
             return api.copy_api.copy_content(data)
           end
 
           unit_copy_counter = 0
           i = 0
-          leftover_units = data.config.first[:content].deep_dup
+          leftover_units = data[:config].first[:content].deep_dup
 
           # Copy data and clear its content fields
           data_dup = copy_api_data_dup(data)
 
-          while i < data_dup.config.size
+          while i < data_dup[:config].size
             # Copy all units within repo or only some?
             if leftover_units.length < UNIT_LIMIT - unit_copy_counter
               copy_amount = leftover_units.length
@@ -183,7 +179,7 @@ module Katello
               copy_amount = UNIT_LIMIT - unit_copy_counter
             end
 
-            data_dup.config[i][:content] = leftover_units.pop(copy_amount)
+            data_dup[:config][i][:content] = leftover_units.pop(copy_amount)
             unit_copy_counter += copy_amount
             if unit_copy_counter != 0
               tasks << api.copy_api.copy_content(data_dup)
@@ -192,10 +188,10 @@ module Katello
 
             if leftover_units.empty?
               # Nothing more to copy -- clear current config's content
-              data_dup.config[i][:content] = []
+              data_dup[:config][i][:content] = []
               i += 1
               # Fetch unit list for next data config
-              leftover_units = data.config[i][:content].deep_dup unless i == data_dup.config.size
+              leftover_units = data[:config][i][:content].deep_dup unless i == data_dup[:config].size
             end
           end
 
@@ -213,15 +209,11 @@ module Katello
         end
 
         def remove_all_content_from_repo(repo_href)
-          data = PulpDebClient::RepositoryAddRemoveContent.new(
-            remove_content_units: ['*'])
-          api.repositories_api.modify(repo_href, data)
+          api.repositories_api.modify(repo_href, remove_content_units: ['*'])
         end
 
         def remove_all_content
-          data = PulpDebClient::RepositoryAddRemoveContent.new(
-            remove_content_units: ['*'])
-          api.repositories_api.modify(repository_reference.repository_href, data)
+          api.repositories_api.modify(repository_reference.repository_href, remove_content_units: ['*'])
         end
 
         def add_filter_content(source_repo_ids, filters, filter_list_map)
@@ -287,13 +279,14 @@ module Katello
 
           content_unit_hrefs = whitelist_ids - blacklist_ids
 
-          pulp_deb_copy_serializer = PulpDebClient::Copy.new
-          pulp_deb_copy_serializer.dependency_solving = false
-          pulp_deb_copy_serializer.config = [{
-            source_repo_version: source_repository.version_href,
-            dest_repo: repository_reference.repository_href,
-            content: content_unit_hrefs,
-          }]
+          pulp_deb_copy_serializer = {
+            dependency_solving: false,
+            config: [{
+              source_repo_version: source_repository.version_href,
+              dest_repo: repository_reference.repository_href,
+              content: content_unit_hrefs,
+            }],
+          }
 
           remove_all = options[:remove_all]
           remove_all = true if remove_all.nil?

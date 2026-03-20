@@ -46,7 +46,7 @@ module Katello
       end
 
       def self.content_api
-        PulpRpmClient::ContentPackagegroupsApi.new(Katello::Pulp3::Api::Yum.new(SmartProxy.pulp_primary!).api_client)
+        Katello::Pulp3::Api::Yum.new(SmartProxy.pulp_primary!).content_package_groups_api
       end
 
       def self.ids_for_repository(repo_id)

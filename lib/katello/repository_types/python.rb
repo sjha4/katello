@@ -1,23 +1,16 @@
-require 'pulp_python_client'
-
 Katello::RepositoryTypeManager.register('python') do
   allow_creation_by_user true
   pulp3_service_class Katello::Pulp3::Repository::Generic
   pulp3_api_class Katello::Pulp3::Api::Generic
   pulp3_plugin 'python'
+  pulp3_skip_publication false
 
-  client_module_class PulpPythonClient
-  api_class PulpPythonClient::ApiClient
-  configuration_class PulpPythonClient::Configuration
-  remote_class PulpPythonClient::PythonPythonRemote
-  remotes_api_class PulpPythonClient::RemotesPythonApi
-  repositories_api_class PulpPythonClient::RepositoriesPythonApi
-  repository_versions_api_class PulpPythonClient::RepositoriesPythonVersionsApi
-  distributions_api_class PulpPythonClient::DistributionsPypiApi
-  distribution_class PulpPythonClient::PythonPythonDistribution
-  publication_class PulpPythonClient::PythonPythonPublication
-  publications_api_class PulpPythonClient::PublicationsPypiApi
-  repo_sync_url_class PulpPythonClient::RepositorySyncURL
+  repositories_op_prefix 'repositories_python_python'
+  remotes_op_prefix 'remotes_python_python'
+  distributions_op_prefix 'distributions_python_pypi'
+  publications_op_prefix 'publications_python_pypi'
+  repository_versions_op_prefix 'repositories_python_python_versions'
+  content_op_prefix 'content_python_packages'
 
   generic_remote_option :includes, title: N_("Includes"), type: Array, input_type: "textarea", delimiter: "\\n", default: [],
                         description: N_("Python packages to include from the upstream URL, names separated by newline. You may also specify versions, for example: django~=2.0. Leave empty to include every package.")
@@ -37,8 +30,7 @@ Katello::RepositoryTypeManager.register('python') do
                        pluralized_name: "Python Packages",
                        pulpcore_name: "python.python",
                        model_class: Katello::GenericContentUnit,
-                       pulp3_api: PulpPythonClient::ContentPackagesApi,
-                       pulp3_model: PulpPythonClient::PythonPythonPackageContentResponse,
+                       pulp3_api: 'content_python_packages',
                        pulp3_service_class: Katello::Pulp3::GenericContentUnit,
                        model_name: lambda { |pulp_unit| pulp_unit["name"] },
                        model_version: lambda { |pulp_unit| pulp_unit["version"] },

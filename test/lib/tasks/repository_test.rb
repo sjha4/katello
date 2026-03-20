@@ -69,7 +69,7 @@ module Katello
     def test_correct_repositories
       ENV['CONTENT_VIEW'] = @cv_repo.content_view.name
 
-      PulpRpmClient::RepositoriesRpmApi.any_instance.expects(:read).once.with(@cv_repo.backend_service(@primary).
+      Katello::PulpClient::ApiProxy.any_instance.expects(:read).once.with(@cv_repo.backend_service(@primary).
                                                                               repository_reference.repository_href).
                                                                               returns({})
 
@@ -81,9 +81,9 @@ module Katello
     def test_correct_repositories_missing_cv_repo
       ENV['CONTENT_VIEW'] = @cv_repo.content_view.name
 
-      PulpRpmClient::RepositoriesRpmApi.any_instance.expects(:read).once.with(@cv_repo.backend_service(@primary).
+      Katello::PulpClient::ApiProxy.any_instance.expects(:read).once.with(@cv_repo.backend_service(@primary).
                                                                               repository_reference.repository_href).
-                                                                              raises(PulpRpmClient::ApiError.new(code: 404))
+                                                                              raises(Katello::PulpClient::ApiError.new(code: 404))
 
       ForemanTasks.expects(:sync_task).never
 
@@ -94,9 +94,9 @@ module Katello
       ENV['CONTENT_VIEW'] = @cv_repo.content_view.name
       ENV['COMMIT'] = 'true'
 
-      PulpRpmClient::RepositoriesRpmApi.any_instance.expects(:read).once.with(@cv_repo.backend_service(@primary).
+      Katello::PulpClient::ApiProxy.any_instance.expects(:read).once.with(@cv_repo.backend_service(@primary).
                                                                               repository_reference.repository_href).
-                                                                              raises(PulpRpmClient::ApiError.new(code: 404))
+                                                                              raises(Katello::PulpClient::ApiError.new(code: 404))
 
       ForemanTasks.expects(:sync_task).with(::Actions::Katello::Repository::Destroy, @cv_repo)
 
@@ -105,7 +105,7 @@ module Katello
 
     def test_correct_repositories_pulp3
       ENV['CONTENT_VIEW'] = @cv_repo.content_view.name
-      PulpRpmClient::RepositoriesRpmApi.any_instance.expects(:read).once.with("test_repo_2/").returns({})
+      Katello::PulpClient::ApiProxy.any_instance.expects(:read).once.with("test_repo_2/").returns({})
 
       ForemanTasks.expects(:sync_task).never
 
@@ -114,7 +114,7 @@ module Katello
 
     def test_correct_repositories_missing_cv_repo_pulp3
       ENV['CONTENT_VIEW'] = @cv_repo.content_view.name
-      PulpRpmClient::RepositoriesRpmApi.any_instance.expects(:read).once.with("test_repo_2/").raises(PulpRpmClient::ApiError)
+      Katello::PulpClient::ApiProxy.any_instance.expects(:read).once.with("test_repo_2/").raises(Katello::PulpClient::ApiError)
 
       ForemanTasks.expects(:sync_task).never
 
@@ -124,7 +124,7 @@ module Katello
     def test_correct_repositories_missing_cv_repo_commit_pulp3
       ENV['CONTENT_VIEW'] = @cv_repo.content_view.name
       ENV['COMMIT'] = 'true'
-      PulpRpmClient::RepositoriesRpmApi.any_instance.expects(:read).once.with("test_repo_2/").raises(PulpRpmClient::ApiError)
+      Katello::PulpClient::ApiProxy.any_instance.expects(:read).once.with("test_repo_2/").raises(Katello::PulpClient::ApiError)
 
       ForemanTasks.expects(:sync_task).with(::Actions::Katello::Repository::Destroy, @cv_repo)
 
@@ -138,7 +138,7 @@ module Katello
       ::Katello::Repository.any_instance.expects(:index_content).once
 
       Katello::Repository.stubs(:in_environment).returns(Katello::Repository.where(:id => @library_repo))
-      PulpRpmClient::RepositoriesRpmApi.any_instance.expects(:read).once.with("test_repo_1/").raises(PulpRpmClient::ApiError)
+      Katello::PulpClient::ApiProxy.any_instance.expects(:read).once.with("test_repo_1/").raises(Katello::PulpClient::ApiError)
 
       ForemanTasks.expects(:sync_task).with(::Actions::Katello::Repository::Create, @library_repo, force_repo_create: true)
 
@@ -151,7 +151,7 @@ module Katello
 
       root = ::Katello::RootRepository.create(label: "a_root_repo", name: "A Root Repo", download_policy: "immediate",
                                               product_id: ::Katello::Product.all.min.id)
-      PulpRpmClient::RepositoriesRpmApi.any_instance.expects(:read).once.with("test_repo_2/").returns({})
+      Katello::PulpClient::ApiProxy.any_instance.expects(:read).once.with("test_repo_2/").returns({})
 
       Rake.application.invoke_task('katello:correct_repositories')
 

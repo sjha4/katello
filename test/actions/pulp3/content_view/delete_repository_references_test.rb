@@ -26,7 +26,7 @@ module ::Actions::Pulp3::ContentView
       ForemanTasks.sync_task(::Actions::Pulp3::ContentView::DeleteRepositoryReferences, @content_view, @primary)
       refute Katello::Pulp3::RepositoryReference.find_by(:id => repo_reference.id)
       assert Katello::Pulp3::RepositoryReference.find_by(:id => library_repo_ref.id)
-      assert_raises(PulpFileClient::ApiError) do
+      assert_raises(Katello::PulpClient::ApiError) do
         Katello::Pulp3::Api::File.new(@primary).repositories_api.read(repo_reference.repository_href)
       end
     end

@@ -6,7 +6,7 @@ module Katello
       PULPCORE_CONTENT_TYPE = "container.tag".freeze
 
       def self.content_api
-        PulpContainerClient::ContentTagsApi.new(Katello::Pulp3::Api::Docker.new(SmartProxy.pulp_primary!).api_client)
+        Katello::Pulp3::Api::Docker.new(SmartProxy.pulp_primary!).content_tags_api
       end
 
       def self.ids_for_repository(repo_id)

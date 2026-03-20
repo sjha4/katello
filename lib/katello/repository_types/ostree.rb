@@ -1,5 +1,3 @@
-require 'pulp_ostree_client'
-
 Katello::RepositoryTypeManager.register('ostree') do
   allow_creation_by_user true
   pulp3_service_class Katello::Pulp3::Repository::Generic
@@ -7,16 +5,11 @@ Katello::RepositoryTypeManager.register('ostree') do
   pulp3_plugin 'ostree'
   pulp3_skip_publication true
 
-  client_module_class PulpOstreeClient
-  api_class PulpOstreeClient::ApiClient
-  configuration_class PulpOstreeClient::Configuration
-  remote_class PulpOstreeClient::OstreeOstreeRemote
-  remotes_api_class PulpOstreeClient::RemotesOstreeApi
-  repositories_api_class PulpOstreeClient::RepositoriesOstreeApi
-  repository_versions_api_class PulpOstreeClient::RepositoriesOstreeVersionsApi
-  distributions_api_class PulpOstreeClient::DistributionsOstreeApi
-  distribution_class PulpOstreeClient::OstreeOstreeDistribution
-  repo_sync_url_class PulpOstreeClient::RepositorySyncURL
+  repositories_op_prefix 'repositories_ostree_ostree'
+  remotes_op_prefix 'remotes_ostree_ostree'
+  distributions_op_prefix 'distributions_ostree_ostree'
+  repository_versions_op_prefix 'repositories_ostree_ostree_versions'
+  content_op_prefix 'content_ostree_refs'
 
   generic_remote_option :include_refs, title: N_("Include Refs"), type: Array, input_type: "text", delimiter: ",", default: [],
                          description: N_("A comma-separated list of refs to include during an ostree sync. The wildcards *, ? are recognized.")
@@ -32,7 +25,7 @@ Katello::RepositoryTypeManager.register('ostree') do
                        pluralized_name: "OSTree Refs",
                        pulpcore_name: "ostree.refs",
                        model_class: Katello::GenericContentUnit,
-                       pulp3_api: PulpOstreeClient::ContentRefsApi,
+                       pulp3_api: 'content_ostree_refs',
                        pulp3_service_class: Katello::Pulp3::GenericContentUnit,
                        model_name: lambda { |pulp_unit| pulp_unit["name"] },
                        model_version: lambda { |pulp_unit| pulp_unit["checksum"] },

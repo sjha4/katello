@@ -1,4 +1,4 @@
-require "pulpcore_client"
+require "katello/pulp_client"
 module Katello
   module Pulp3
     class Content
@@ -19,7 +19,7 @@ module Katello
             content_unit_href = content_list.results.first.pulp_href unless content_list.results.empty?
             return {"content_unit_href" => content_unit_href} if content_unit_href
           end
-          upload_href = uploads_api.create(upload_class.new(size: size)).pulp_href
+          upload_href = uploads_api.create(size: size).pulp_href
           {"upload_id" => upload_href.split("/").last}
         end
 
@@ -45,16 +45,12 @@ module Katello
 
         private
 
-        def core_api_client
-          PulpcoreClient::ApiClient.new(SmartProxy.pulp_primary.pulp3_configuration(PulpcoreClient::Configuration))
+        def core_api
+          @core_api ||= Katello::Pulp3::Api::Core.new(SmartProxy.pulp_primary)
         end
 
         def uploads_api
-          PulpcoreClient::UploadsApi.new(core_api_client)
-        end
-
-        def upload_class
-          PulpcoreClient::Upload
+          core_api.uploads_api
         end
 
         def content_range(start, finish, total)

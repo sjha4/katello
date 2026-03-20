@@ -8,7 +8,7 @@ module Katello
       lazy_accessor :initializer => :backend_data
 
       def self.content_api
-        PulpDebClient::ContentPackagesApi.new(Katello::Pulp3::Api::Apt.new(SmartProxy.pulp_primary!).api_client)
+        Katello::Pulp3::Api::Apt.new(SmartProxy.pulp_primary!).content_packages_api
       end
 
       def self.content_api_create(opts = {})
@@ -18,7 +18,7 @@ module Katello
 
       def self.create_content(options)
         fail _("Artifact Id and relative path are needed to create content") unless options.dig(:file_name) && options.dig(:artifact)
-        PulpDebClient::DebContent.new(relative_path: options[:file_name], artifact: options[:artifact])
+        { relative_path: options[:file_name], artifact: options[:artifact] }
       end
 
       def self.ids_for_repository(repo_id)

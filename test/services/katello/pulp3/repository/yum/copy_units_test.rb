@@ -15,18 +15,19 @@ module Katello
         end
 
         def test_copy_api_data_dup_does_deep_copy
-          data = PulpRpmClient::Copy.new
-          data.config = [
-            { source_repo_version: "a source repo",
-              dest_repo: "a dest repo",
-              content: ["1", "2", "3"],
-              dest_base_version: 0 },
-            { source_repo_version: "another source repo",
-              dest_repo: "another dest repo",
-              content: ["4", "5", "6"],
-              dest_base_version: 1 },
-          ]
-          data.dependency_solving = false
+          data = {
+            config: [
+              { source_repo_version: "a source repo",
+                dest_repo: "a dest repo",
+                content: ["1", "2", "3"],
+                dest_base_version: 0 },
+              { source_repo_version: "another source repo",
+                dest_repo: "another dest repo",
+                content: ["4", "5", "6"],
+                dest_base_version: 1 },
+            ],
+            dependency_solving: false,
+          }
 
           data_dup = @repo_service.copy_api_data_dup(data)
 
@@ -34,21 +35,22 @@ module Katello
         end
 
         def test_copy_api_data_dup_clears_content
-          data = PulpRpmClient::Copy.new
-          data.config = [
-            { source_repo_version: "a source repo",
-              dest_repo: "a dest repo",
-              content: ["1", "2", "3"],
-              dest_base_version: 0 },
-            { source_repo_version: "another source repo",
-              dest_repo: "another dest repo",
-              content: ["4", "5", "6"],
-              dest_base_version: 1 },
-          ]
-          data.dependency_solving = false
+          data = {
+            config: [
+              { source_repo_version: "a source repo",
+                dest_repo: "a dest repo",
+                content: ["1", "2", "3"],
+                dest_base_version: 0 },
+              { source_repo_version: "another source repo",
+                dest_repo: "another dest repo",
+                content: ["4", "5", "6"],
+                dest_base_version: 1 },
+            ],
+            dependency_solving: false,
+          }
 
-          data.config.first[:content] = []
-          data.config.second[:content] = []
+          data[:config].first[:content] = []
+          data[:config].second[:content] = []
 
           data_dup = @repo_service.copy_api_data_dup(data)
 
@@ -56,13 +58,12 @@ module Katello
         end
 
         def test_copy_content_chunked_limits_units_copied
-          data = PulpRpmClient::Copy.new
-          data.config = []
+          data = { config: [], dependency_solving: false }
 
           content = []
           30_001.times { |i| content << i }
 
-          3.times { data.config << { content: content } }
+          3.times { data[:config] << { content: content } }
 
           mock_api = "test"
           Katello::Pulp3::Api::Yum.any_instance.expects(:copy_api).returns(mock_api).times(12)
@@ -72,43 +73,42 @@ module Katello
         end
 
         def test_copy_content_chunked_copies_correct_units
-          data = PulpRpmClient::Copy.new
-          data.config = []
+          data = { config: [], dependency_solving: false }
 
           mock_api = "test"
           Katello::Pulp3::Api::Yum.any_instance.expects(:copy_api).returns(mock_api).times(4)
 
           3.times do
-            data.config << {
+            data[:config] << {
               source_repo_version: "repo version",
               dest_repo: "dest repo",
               content: [],
             }
           end
-          data.config[0][:content] = (0..9_999).to_a
-          data.config[1][:content] = (10_000..19_999).to_a
-          data.config[2][:content] = (20_000..30_000).to_a
+          data[:config][0][:content] = (0..9_999).to_a
+          data[:config][1][:content] = (10_000..19_999).to_a
+          data[:config][2][:content] = (20_000..30_000).to_a
 
           mock_api.expects(:copy_content).returns("task").once.with do |value|
-            value.config == [{source_repo_version: "repo version", dest_repo: "dest repo", content: (0..9_999).to_a},
+            value[:config] == [{source_repo_version: "repo version", dest_repo: "dest repo", content: (0..9_999).to_a},
                              {source_repo_version: "repo version", dest_repo: "dest repo", content: []},
                              {source_repo_version: "repo version", dest_repo: "dest repo", content: []}]
           end
 
           mock_api.expects(:copy_content).returns("task").once.with do |value|
-            value.config == [{source_repo_version: "repo version", dest_repo: "dest repo", content: []},
+            value[:config] == [{source_repo_version: "repo version", dest_repo: "dest repo", content: []},
                              {source_repo_version: "repo version", dest_repo: "dest repo", content: (10_000..19_999).to_a},
                              {source_repo_version: "repo version", dest_repo: "dest repo", content: []}]
           end
 
           mock_api.expects(:copy_content).returns("task").once.with do |value|
-            value.config == [{source_repo_version: "repo version", dest_repo: "dest repo", content: []},
+            value[:config] == [{source_repo_version: "repo version", dest_repo: "dest repo", content: []},
                              {source_repo_version: "repo version", dest_repo: "dest repo", content: []},
                              {source_repo_version: "repo version", dest_repo: "dest repo", content: (20_001..30_000).to_a}]
           end
 
           mock_api.expects(:copy_content).returns("task").once.with do |value|
-            value.config == [{source_repo_version: "repo version", dest_repo: "dest repo", content: []},
+            value[:config] == [{source_repo_version: "repo version", dest_repo: "dest repo", content: []},
                              {source_repo_version: "repo version", dest_repo: "dest repo", content: []},
                              {source_repo_version: "repo version", dest_repo: "dest repo", content: [20_000]}]
           end

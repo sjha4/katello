@@ -1,6 +1,6 @@
 require 'katello_test_helper'
 require 'support/pulp3_support'
-require "pulpcore_client"
+require "katello/pulp_client"
 
 module Katello
   module Service

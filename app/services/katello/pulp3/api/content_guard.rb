@@ -1,4 +1,4 @@
-require 'pulp_certguard_client'
+require "katello/pulp_client"
 
 module Katello
   module Pulp3
@@ -8,20 +8,12 @@ module Katello
           'RHSMCertGuard'
         end
 
-        def client_module
-          PulpCertguardClient
-        end
-
         def self.api_exception_class
-          PulpCertguardClient::ApiError
-        end
-
-        def api_client
-          api_client_class(PulpCertguardClient::ApiClient.new(smart_proxy.pulp3_configuration(PulpCertguardClient::Configuration)))
+          Katello::PulpClient::ApiError
         end
 
         def rhsm_api_client
-          PulpCertguardClient::ContentguardsRhsmApi.new(api_client)
+          api_proxy('contentguards_certguard_rhsm')
         end
 
         def ca_cert
@@ -31,7 +23,7 @@ module Katello
         def refresh
           found = list(name: default_name).results.first
           if found && found.ca_certificate != ca_cert
-            partial_update(found.pulp_href)  # Still use pulp_href for API calls
+            partial_update(found.pulp_href)
           else
             found = create
           end
@@ -51,10 +43,9 @@ module Katello
         end
 
         def create(name = default_name)
-          data = PulpCertguardClient::CertguardRHSMCertGuard.new(name: name, ca_certificate: ca_cert)
-          rhsm_api_client.create(data)
-        rescue self.class.api_exception_class => e
-          if (found = list&.results&.first) #check for possible race condition
+          rhsm_api_client.create(name: name, ca_certificate: ca_cert)
+        rescue Katello::PulpClient::ApiError => e
+          if (found = list&.results&.first)
             found
           else
             raise e
@@ -66,8 +57,7 @@ module Katello
         end
 
         def partial_update(href)
-          data = { ca_certificate: ca_cert }
-          rhsm_api_client.partial_update(href, data)
+          rhsm_api_client.partial_update(href, ca_certificate: ca_cert)
         end
 
         def delete(href)

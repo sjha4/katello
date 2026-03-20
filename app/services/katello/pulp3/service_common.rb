@@ -3,13 +3,8 @@ module Katello
     module ServiceCommon
       def create_remote
         response = nil
-        if remote_options[:url]&.start_with?('uln')
-          remote_file_data = api.class.remote_uln_class.new(remote_options)
-        else
-          remote_file_data = api.remote_class.new(remote_options)
-        end
         reformat_api_exception do
-          response = api.get_remotes_api(url: remote_options[:url]).create(remote_file_data)
+          response = api.get_remotes_api(url: remote_options[:url]).create(remote_options)
         end
         response
       end
@@ -26,14 +21,9 @@ module Katello
       def create_test_remote
         test_remote_options = remote_options
         test_remote_options[:name] = test_remote_name
-        if remote_options[:url]&.start_with?('uln')
-          remote_file_data = api.class.remote_uln_class.new(test_remote_options)
-        else
-          remote_file_data = api.remote_class.new(test_remote_options)
-        end
 
         reformat_api_exception do
-          response = api.get_remotes_api(url: remote_options[:url]).create(remote_file_data)
+          response = api.get_remotes_api(url: remote_options[:url]).create(test_remote_options)
           #delete is async, but if its not properly deleted, orphan cleanup will take care of it later
           delete_remote(href: response.pulp_href)
         end
@@ -41,14 +31,14 @@ module Katello
 
       def ignore_404_exception(*)
         yield
-      rescue api.api_exception_class => e
+      rescue Katello::PulpClient::ApiError => e
         raise e unless e.code == 404
         nil
       end
 
       def reformat_api_exception
         yield
-      rescue api.client_module::ApiError => exception
+      rescue Katello::PulpClient::ApiError => exception
         body = JSON.parse(exception.response_body) rescue body
         body = body.values.join(',') if body.respond_to?(:values)
         raise ::Katello::Errors::Pulp3Error, body

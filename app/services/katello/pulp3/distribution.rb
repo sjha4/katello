@@ -4,7 +4,7 @@ module Katello
       include LazyAccessor
 
       def self.content_api
-        PulpRpmClient::ContentDistributionTreesApi.new(Katello::Pulp3::Api::Yum.new(SmartProxy.pulp_primary!).api_client)
+        Katello::Pulp3::Api::Yum.new(SmartProxy.pulp_primary!).content_distribution_trees_api
       end
 
       def self.ids_for_repository(repo_id)

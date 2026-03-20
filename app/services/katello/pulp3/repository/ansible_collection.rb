@@ -1,4 +1,4 @@
-require 'pulp_ansible_client'
+require 'katello/pulp_client'
 
 module Katello
   module Pulp3

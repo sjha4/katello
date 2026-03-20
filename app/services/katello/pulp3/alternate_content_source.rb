@@ -1,4 +1,4 @@
-require "pulpcore_client"
+require "katello/pulp_client"
 module Katello
   module Pulp3
     class AlternateContentSource

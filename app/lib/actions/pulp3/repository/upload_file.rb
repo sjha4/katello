@@ -10,13 +10,12 @@ module Actions
         def invoke_external_task
           repo = ::Katello::Repository.find(input[:repository_id])
           repo_backend_service = repo.backend_service(smart_proxy)
-          upload_class = repo_backend_service.core_api.upload_class
           uploads_api = repo_backend_service.core_api.uploads_api
           offset = 0
           response = nil
           File.open(input[:file], "rb") do |file|
             total_size = File.size(file)
-            upload_href = uploads_api.create(upload_class.new(size: total_size)).pulp_href
+            upload_href = uploads_api.create(size: total_size).pulp_href
             sha256 = Digest::SHA256.hexdigest(File.read(file))
             until file.eof?
               chunk = file.read(upload_chunk_size)

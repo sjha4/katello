@@ -1,4 +1,4 @@
-require 'pulp_container_client'
+require 'katello/pulp_client'
 
 module Katello
   module Pulp3
@@ -54,20 +54,20 @@ module Katello
 
         def create_version(options = {})
           api.repositories_api.add(repository_reference.repository_href,
-                                   api.class.recursive_manage_class.new(content_units: options[:add_content_units]))
+                                   { content_units: options[:add_content_units] })
           api.repositories_api.remove(repository_reference.repository_href,
-                                      api.class.recursive_manage_class.new(content_units: options[:remove_content_units]))
+                                      { content_units: options[:remove_content_units] })
         end
 
         def tag_manifest(name, digest)
           api.repositories_api.tag(repository_reference.repository_href,
-                                   api.class.tag_image_class.new(tag: name, digest: digest))
+                                   { tag: name, digest: digest })
         end
 
         def add_content(content_unit_href)
           content_unit_href = [content_unit_href] unless content_unit_href.is_a?(Array)
           api.repositories_api.add(repository_reference.repository_href, content_units: content_unit_href)
-        rescue api.client_module::ApiError => e
+        rescue Katello::PulpClient::ApiError => e
           if e.message.include? 'Could not find the following content units'
             raise ::Katello::Errors::Pulp3Error, "Content units that do not exist in Pulp were requested to be copied."\
               " Please run `foreman-rake katello:delete_orphaned_content` to fix the following repository: #{repository_reference.root_repository.name}. Original error: #{e.message}"
@@ -80,10 +80,10 @@ module Katello
           tasks = []
           if clear_repo
             tasks << api.repositories_api.remove(repository_reference.repository_href,
-                                                 api.class.recursive_manage_class.new(:content_units => ["*"]))
+                                                 { content_units: ["*"] })
           end
           tasks << api.repositories_api.add(repository_reference.repository_href,
-                                            api.class.recursive_manage_class.new(content_units: unit_hrefs))
+                                            { content_units: unit_hrefs })
           tasks
         end
 

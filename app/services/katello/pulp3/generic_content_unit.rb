@@ -14,7 +14,9 @@ module Katello
 
       def self.content_api(repository_type, content_type)
         label = content_type.is_a?(String) ? content_type : content_type.label
-        repository_type.content_types.find { |type| type.content_type == label }.pulp3_api.new(repository_type.pulp3_api_class.new(SmartProxy.pulp_primary!, repository_type).api_client)
+        op_prefix = repository_type.content_types.find { |type| type.content_type == label }.pulp3_api
+        api = repository_type.pulp3_api_class.new(SmartProxy.pulp_primary!, repository_type)
+        Katello::PulpClient::ApiProxy.new(api.pulp_connection, op_prefix)
       end
 
       def self.generate_model_row(unit, content_type)

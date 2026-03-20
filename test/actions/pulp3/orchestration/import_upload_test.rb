@@ -45,7 +45,7 @@ module ::Actions::Pulp3
       end
       # cleanup orphaned content
       ::Katello::Pulp3::Api::Core.new(@primary).orphans_api.cleanup(
-        ::PulpcoreClient::OrphansCleanup.new(orphan_protection_time: 0)
+        { orphan_protection_time: 0 }
       )
     end
 

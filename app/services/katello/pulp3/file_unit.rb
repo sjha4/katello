@@ -6,12 +6,12 @@ module Katello
       PULPCORE_CONTENT_TYPE = "file.file".freeze
 
       def self.content_api
-        PulpFileClient::ContentFilesApi.new(Katello::Pulp3::Api::File.new(SmartProxy.pulp_primary!).api_client)
+        Katello::Pulp3::Api::File.new(SmartProxy.pulp_primary!).content_files_api
       end
 
       def self.create_content(options)
         fail _("Artifact Id and relative path are needed to create content") unless options.dig(:file_name) && options.dig(:artifact)
-        PulpFileClient::FileContent.new(relative_path: options[:file_name], artifact: options[:artifact])
+        { relative_path: options[:file_name], artifact: options[:artifact] }
       end
 
       def self.ids_for_repository(repo_id)

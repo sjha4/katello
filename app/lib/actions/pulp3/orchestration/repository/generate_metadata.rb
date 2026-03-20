@@ -7,7 +7,8 @@ module Actions
             force_publication = options.fetch(:force_publication, repository.publication_href.nil?)
 
             options[:contents_changed] = (options && options.key?(:contents_changed)) ? options[:contents_changed] : true
-            publication_content_type = !::Katello::RepositoryTypeManager.find(repository.content_type).pulp3_skip_publication
+            repo_type = ::Katello::RepositoryTypeManager.find(repository.content_type)
+            publication_content_type = repo_type && !repo_type.pulp3_skip_publication
 
             sequence do
               if options[:source_repository] && publication_content_type
