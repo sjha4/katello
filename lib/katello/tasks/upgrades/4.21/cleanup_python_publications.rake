@@ -18,6 +18,7 @@ namespace :katello do
         end
 
         migrate_distributions(python_repos, smart_proxy)
+        repair_python_metadata(python_repos, smart_proxy)
         delete_python_publications(smart_proxy)
         clear_publication_hrefs(python_repos)
       end
@@ -75,6 +76,35 @@ namespace :katello do
         end
       end
       # rubocop:enable Metrics/MethodLength
+
+      def self.repair_python_metadata(python_repos, smart_proxy)
+        puts "Repairing Python package metadata..."
+        tasks = []
+        python_repos.select { |repo| repo.environment.present? }.each do |repo|
+          begin
+            service = Katello::Pulp3::Repository.instance_for_type(repo, smart_proxy)
+            repository_href = service.repository_reference.repository_href
+            api = service.api
+            response = api.repositories_api.repair_metadata(repository_href)
+            # Pulp 3.90+ returns polymorphic responses: convert AsyncOperationResponse to hash format
+            task_data = response.respond_to?(:task) ? { 'task' => response.task } : response
+            tasks << { task: Katello::Pulp3::Task.new(smart_proxy, task_data), repo: repo }
+            puts "Queued metadata repair for: #{repo.name}"
+          rescue StandardError => e
+            puts "WARNING: Could not queue metadata repair for #{repo.name}: #{e.message}"
+          end
+        end
+
+        # Wait for repair tasks and log results
+        tasks.each do |task_info|
+          task_info[:task].poll until task_info[:task].done?
+          if task_info[:task].error
+            puts "WARNING: Metadata repair failed for #{task_info[:repo].name}: #{task_info[:task].error}"
+          else
+            puts "Metadata repair completed for #{task_info[:repo].name}"
+          end
+        end
+      end
 
       # rubocop:disable Metrics/MethodLength
       def self.delete_python_publications(smart_proxy)
