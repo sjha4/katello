@@ -140,6 +140,21 @@ module Katello
         end
         repository_sync_url_data = api.repository_sync_url_class.new(sync_params)
         [api.repositories_api.sync(repository_href, repository_sync_url_data)]
+      rescue api.client_module::ApiError => error
+        raise unless repo_service.is_a?(::Katello::Pulp3::Repository::File) &&
+                     sync_params.key?(:optimize) && unsupported_file_sync_optimize?(error)
+
+        # Older capsules reject optimize before starting a file sync. Retry once without it.
+        sync_params.delete(:optimize)
+        # Send a hash so client model defaults cannot reintroduce optimize.
+        [api.repositories_api.sync(repository_href, sync_params)]
+      end
+
+      def unsupported_file_sync_optimize?(error)
+        error.code.to_i == 400 &&
+          JSON.parse(error.response_body.to_s) == { 'optimize' => ['Unexpected field'] }
+      rescue JSON::ParserError
+        false
       end
 
       def common_remote_options
